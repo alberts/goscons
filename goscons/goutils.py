@@ -1,7 +1,9 @@
 from subprocess import Popen, PIPE
+import os.path
 
 def helper(source, env):
-    p = Popen(['scons-go-helper', '-mode=both', source.abspath], stdout=PIPE, stderr=PIPE)
+    helper = env.subst(os.path.join('$GOROOT', 'bin', 'scons-go-helper'))
+    p = Popen([helper, '-mode=both', source.abspath], stdout=PIPE, stderr=PIPE)
     out, err = p.communicate()
     if p.returncode != 0:
         raise SCons.Errors.UserError, err.strip()

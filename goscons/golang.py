@@ -16,13 +16,17 @@ def generate(env):
         raise SCons.Errors.InternalError, \
             'Unsupported platform: %s' % platform.system()
 
-    if platform.machine() == 'x86_64':
-        env['GOARCH'] = 'amd64'
-    elif platform.machine() == 'i386':
-        env['GOARCH'] = '386'
+    if 'GOARCH' in os.environ:
+        env['GOARCH'] = os.environ['GOARCH']
     else:
-        raise SCons.Errors.InternalError, \
-            'Unsupported arch: %s' % platform.machine()
+        if platform.machine() == 'x86_64':
+            env['GOARCH'] = 'amd64'
+        elif platform.machine() == 'i386':
+            # TODO not a good guess on darwin
+            env['GOARCH'] = '386'
+        else:
+            raise SCons.Errors.InternalError, \
+                'Unsupported arch: %s' % platform.machine()
 
     env['GOROOTPKGPATH'] = env.Dir('$GOROOT/pkg/${GOOS}_$GOARCH')
     env['GOPROJPKGPATH'] = env.Dir('#pkg/${GOOS}_$GOARCH')
