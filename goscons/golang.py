@@ -4,7 +4,11 @@ import os
 import platform
 
 def godep(env, d, *args, **kw):
-    env.Append(GOPKGPATH=env.Dir(os.path.join('#..',d,'pkg','${GOOS}_$GOARCH')))
+    if 'HUDSON' in env['ENV']:
+        lastBuild = env['ENV']['HUDSON']
+        env.Append(GOPKGPATH=env.Dir(os.path.join('#..','..',d,lastBuild,'pkg','${GOOS}_$GOARCH')))
+    else:
+        env.Append(GOPKGPATH=env.Dir(os.path.join('#..',d,'pkg','${GOOS}_$GOARCH')))
 
 def generate(env):
     if 'GOROOT' not in os.environ:
