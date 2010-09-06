@@ -1,8 +1,11 @@
 from subprocess import Popen, PIPE
+import SCons.Errors
 import os.path
 
 def helper(source, env):
     helper = env.subst(os.path.join('$GOROOT', 'bin', 'scons-go-helper'))
+    if not os.path.isfile(helper):
+        raise SCons.Errors.UserError, '$GOROOT/bin/scons-go-helper is missing'
     p = Popen([helper, '-mode=both', source.abspath], stdout=PIPE, stderr=PIPE)
     out, err = p.communicate()
     if p.returncode != 0:
