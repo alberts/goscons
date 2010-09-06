@@ -6,7 +6,7 @@ import platform
 def godep(env, d, *args, **kw):
     if 'HUDSON' in env['ENV']:
         lastBuild = env['ENV']['HUDSON']
-        env.Append(GOPKGPATH=env.Dir(os.path.join('#..','..',d,lastBuild,'pkg','${GOOS}_$GOARCH')))
+        env.Append(GOPKGPATH=env.Dir(os.path.join('#..','..',d,lastBuild,'archive','pkg','${GOOS}_$GOARCH')))
     else:
         env.Append(GOPKGPATH=env.Dir(os.path.join('#..',d,'pkg','${GOOS}_$GOARCH')))
 
