@@ -3,6 +3,9 @@ import SCons.Tool
 import os
 import platform
 
+def godep(env, d, *args, **kw):
+    env.Append(GOPKGPATH=env.Dir(os.path.join('#..',d,'pkg','${GOOS}_$GOARCH')))
+
 def generate(env):
     if 'GOROOT' not in os.environ:
         raise SCons.Errors.UserError, 'Set GOROOT in your environment'
@@ -44,6 +47,8 @@ def generate(env):
         ]
     for t in SCons.Tool.FindAllTools(tools,env):
         SCons.Tool.Tool(t)(env)
+
+    env.AddMethod(godep, 'GoDep')
 
 def exists(env):
     return 1
