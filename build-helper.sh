@@ -71,7 +71,7 @@ LD="${GOBIN}/${ARCHPREFIX}l"
 if [[ -e "$GC" && -e "$LD" ]]
 then
     # Build it!
-    TEMPDIR="`mktemp -d -t scons-go-helper`" || crash "**Couldn't create temporary directory"
+    TEMPDIR="`mktemp -d -t scons-go-helper.XXX`" || crash "**Couldn't create temporary directory"
     $GC -o "${TEMPDIR}/helper.$ARCHPREFIX" helper.go || crash "**Compile failed"
     $LD -o "${TEMPDIR}/scons-go-helper" "${TEMPDIR}/helper.$ARCHPREFIX" || crash "**Linking failed"
 else
