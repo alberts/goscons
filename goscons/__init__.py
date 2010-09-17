@@ -10,3 +10,11 @@ def GoEnvironment(*args, **kwargs):
     kwargs.setdefault('ENV', os.environ)
     kwargs.setdefault('tools', ['golang','default'])
     return Environment(*args, **kwargs)
+
+def GoEnvironment6(*args, **kwargs):
+    kwargs.setdefault('GOARCH', 'amd64')
+    return GoEnvironment(*args, **kwargs)
+
+def GoEnvironment8(*args, **kwargs):
+    kwargs.setdefault('GOARCH', '386')
+    return GoEnvironment(*args, **kwargs)

@@ -27,7 +27,17 @@ CgoBuilder = SCons.Builder.Builder(action=CgoAction,
                                    source_factory=SCons.Node.FS.File,
                                    src_suffix='$GOFILESUFFIX')
 
+def _cgo_arch_cflags(arch, env, f=lambda x: x, target=None, source=None):
+    if arch == 'amd64':
+        return '$CGO_AMD64_CFLAGS'
+    elif arch == '386':
+        return '$CGO_386_CFLAGS'
+    else:
+        raise SCons.Errors.InternalError, \
+            'Unsupported GOARCH: %s' % arch
+
 def generate(env):
+    env['_cgo_arch_cflags'] = _cgo_arch_cflags
     env['BUILDERS']['Cgo'] = CgoBuilder
     env['CGO'] = 'cgo'
     # tried chdir instead of this, but it breaks parallel builds
@@ -37,7 +47,10 @@ def generate(env):
     # TODO find a way to set the environment on Windows
     env['CGOCOM'] = CDCOM + '${TARGET.dir} && CGOPKGPATH=$CGOPKGPATH GOARCH=$GOARCH $CGO -- $CGO_CFLAGS ${SOURCES.file}'
     env['CGOPKGPATH'] = ''
-    env['CGO_CFLAGS'] = ''
+    env['CGO_ARCH_CFLAGS'] = '${_cgo_arch_cflags(GOARCH,"")}'
+    env['CGO_AMD64_CFLAGS'] = '-m64'
+    env['CGO_386_CFLAGS'] = '-m32'
+    env['CGO_CFLAGS'] = '-fPIC -O2'
     env['CGO_LDFLAGS'] = ''
     env['CGOPKGPATH'] = ''
 
