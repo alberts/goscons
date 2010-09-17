@@ -1,11 +1,22 @@
 import SCons.Builder
 import SCons.Node.FS
+import SCons.Scanner
 import SCons.Util
+
+# Make executable directly dependant on its packages so that it gets
+# relinked when they change
+def scanner_function(node, env, path):
+    f = lambda x: hasattr(x.attributes,'go_pkg')
+    deps = filter(f, node.all_children())
+    return deps
 
 GoLinkAction = SCons.Action.Action('$GOLINKCOM', '$GOLINKCOMSTR')
 
+GoObjectScanner = SCons.Scanner.Scanner(scanner_function)
+
 GoLinkBuilder = SCons.Builder.Builder(action=GoLinkAction,
                                       source_factory=SCons.Node.FS.File,
+                                      source_scanner=GoObjectScanner,
                                       src_suffix='$GOOBJSUFFIX')
 
 def _go_rpath(lst, env, f=lambda x: x, target=None, source=None):
