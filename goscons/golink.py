@@ -8,7 +8,6 @@ GoLinkBuilder = SCons.Builder.Builder(action=GoLinkAction,
                                       source_factory=SCons.Node.FS.File,
                                       src_suffix='$GOOBJSUFFIX')
 
-
 def _go_rpath(lst, env, f=lambda x: x, target=None, source=None):
     if not lst: return lst
     l = f(SCons.PathList.PathList(lst).subst_path(env, target, source))
@@ -19,9 +18,8 @@ def generate(env):
     env['_go_rpath'] = _go_rpath
     env['BUILDERS']['Golink'] = GoLinkBuilder
     env['GORPATH'] = [env['GOPROJPKGPATH'], env['GOROOTPKGPATH']]
-    env['GOLINK'] = '6l'
     env['GOLINKFLAGS'] = SCons.Util.CLVar('')
     env['GOLINKCOM'] = '$GOLINK $( ${_concat("-L ", GOPKGPATH, "", __env__)} $) -r ${_go_rpath(GORPATH,"")} $GOLINKFLAGS -o $TARGET $SOURCES'
 
 def exists(env):
-    return env.Detect('6l')
+    return 1

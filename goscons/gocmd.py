@@ -6,6 +6,7 @@ def is_source(source):
     test = source.name.endswith('_test.go')
     return not test
 
+# TODO need to propogate args, kw into env
 def gocommand(env, srcdir, *args, **kw):
     source = sorted(env.Glob(os.path.join(srcdir, '*.go')))
     fs = SCons.Node.FS.get_default_fs()
@@ -15,7 +16,8 @@ def gocommand(env, srcdir, *args, **kw):
     objfiles = env.Goc(srcdir.File(obj), gofiles, *args, **kw)
     bin = env.Golink(srcdir.File(srcdir.name), objfiles)
     local_bin_dir = fs.Dir(env['GOPROJBINPATH'])
-    return env.InstallAs(local_bin_dir.File(srcdir.name), bin[0], *args, **kw)
+    install_name = '%s%s%s' % (env.subst('$GOCMDPREFIX'), srcdir.name, env.subst('$GOCMDSUFFIX'))
+    return env.InstallAs(local_bin_dir.File(install_name), bin[0], *args, **kw)
 
 def gocommands(env, srcdir, *args, **kw):
     fs = SCons.Node.FS.get_default_fs()
@@ -34,6 +36,8 @@ def gocommands(env, srcdir, *args, **kw):
 def generate(env):
     env.AddMethod(gocommand, 'GoCommand')
     env.AddMethod(gocommands, 'GoCommands')
+    env['GOCMDPREFIX'] = ''
+    env['GOCMDSUFFIX'] = ''
 
 def exists(env):
     return 1

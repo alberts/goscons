@@ -5,10 +5,13 @@ import goutils
 import os.path
 
 def is_source(source):
-    cgo_generated = source.name=='_cgo_gotypes.go' or source.name.endswith('.cgo1.go')
-    test = source.name.endswith('_test.go')
-    return not cgo_generated and not test
+    if source.name=='_cgo_gotypes.go': return False
+    if source.name.endswith('.cgo1.go'): return False
+    if source.name.endswith('_test.go'): return False
+    if source.name=='_testmain.go': return False
+    return True
 
+# TODO need to propogate args, kw into env
 def gopackage(env, srcdir, *args, **kw):
     source = sorted(env.Glob(os.path.join(srcdir, '*.go')))
     fs = SCons.Node.FS.get_default_fs()
@@ -73,6 +76,7 @@ def gopackages(env, srcdir, *args, **kw):
 def generate(env):
     env.AddMethod(gopackage, 'GoPackage')
     env.AddMethod(gopackages, 'GoPackages')
+    # TODO remove this when we have FindFile in goscanner
     env['GOPACKAGES'] = []
 
 def exists(env):

@@ -11,7 +11,6 @@ P9ObjectBuilder = SCons.Builder.Builder(action=P9CCAction,
 
 def generate(env):
     env['BUILDERS']['P9Object'] = P9ObjectBuilder
-    env['P9CC'] = '6c'
     env['P9CFLAGS'] = SCons.Util.CLVar('')
     env['P9CCCOM'] = '$P9CC -o $TARGET $P9CFLAGS $SOURCES'
 

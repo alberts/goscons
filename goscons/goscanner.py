@@ -22,6 +22,7 @@ def resolve_pkg(pkg, env, path):
     # TODO import not found. raise a scons error here?
     return []
 
+# TODO use gopack p filename __.PKGDEF
 def goPkgScannerFunc(node, env, path, arg=None):
     if not node.exists(): return []
     deps = []

@@ -46,14 +46,24 @@ def generate(env):
         'gocmd',
         'cgo',
         'goc',
+        'goc6',
         'golink',
+        'golink6',
         'plan9c',
+        'plan9c6',
         'gopack'
         ]
     for t in SCons.Tool.FindAllTools(tools,env):
         SCons.Tool.Tool(t)(env)
 
     env.AddMethod(godep, 'GoDep')
+
+    #print SCons.Tool.FindTool(['golink6'],env)
+    #print SCons.Tool.FindTool(['golink8'],env)
+    #print SCons.Tool.FindTool(['goc6'],env)
+    #print SCons.Tool.FindTool(['goc8'],env)
+    #print SCons.Tool.FindTool(['plan9c6'],env)
+    #print SCons.Tool.FindTool(['plan9c8'],env)
 
 def exists(env):
     return 1
