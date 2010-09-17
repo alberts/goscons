@@ -11,6 +11,12 @@ def GoEnvironment(*args, **kwargs):
     kwargs.setdefault('tools', ['golang','default'])
     return Environment(*args, **kwargs)
 
+def GccGoEnvironment(*args, **kwargs):
+    # set kwargs to keep Python 2.4 happy
+    kwargs.setdefault('ENV', os.environ)
+    kwargs.setdefault('tools', ['golang','gccgo','default'])
+    return Environment(*args, **kwargs)
+
 def GoEnvironment6(*args, **kwargs):
     kwargs.setdefault('GOARCH', 'amd64')
     return GoEnvironment(*args, **kwargs)

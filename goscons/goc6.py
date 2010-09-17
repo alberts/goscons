@@ -3,4 +3,4 @@ def generate(env):
     env['GOOBJSUFFIX'] = '.6'
 
 def exists(env):
-    return env.Detect('6g')
+    return 1
