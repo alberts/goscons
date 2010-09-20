@@ -27,7 +27,9 @@ def gopackage(env, srcdir, *args, **kw):
 
     objfiles = []
     obj = env.subst('_go_$GOOBJSUFFIX')
-    objfiles += env.Goc(srcdir.File(obj), gofiles, *args, **kw)
+    # calculate a prefix for gccgo
+    projprefix = os.path.split(fs.Dir('#').abspath)[-1] + '_'
+    objfiles += env.Goc(srcdir.File(obj), gofiles, GOPREFIX=projprefix, *args, **kw)
 
     if len(cgofiles)>0:
         cgo_defun = filter(lambda x: x.name=='_cgo_defun.c', cgo_out)
@@ -35,7 +37,7 @@ def gopackage(env, srcdir, *args, **kw):
                                  P9CFLAGS='-FVw -I"$GOROOT/src/pkg/runtime" -D_64BIT',
                                  *args, **kw)
 
-    pkg = srcdir.Dir('_obj').File(env.subst(srcdir.name+'$GOLIBSUFFIX'))
+    pkg = srcdir.Dir('_obj').File(env.subst('${GOLIBPREFIX}'+srcdir.name+'${GOLIBSUFFIX}'))
     pkg = env.Gopack(pkg, objfiles, *args, **kw)
 
     local_pkg_dir = fs.Dir(env['GOPROJPKGPATH'])
@@ -52,7 +54,7 @@ def gopackage(env, srcdir, *args, **kw):
         installed_cgolib = local_pkg_dir.File(env.subst('cgo_%s$SHLIBSUFFIX' % '_'.join(pkgparts)))
         installed += env.InstallAs(installed_cgolib, cgolib, *args, **kw)
 
-    pkgfile = env.subst(fs.Dir('#src/pkg').rel_path(srcdir)+'$GOLIBSUFFIX')
+    pkgfile = os.path.join(fs.Dir('#src/pkg').rel_path(srcdir.dir), env.subst('${GOLIBPREFIX}'+srcdir.name +'${GOLIBSUFFIX}'))
     installed_pkg = env.InstallAs(local_pkg_dir.File(pkgfile), pkg[0], *args, **kw)
     env.Append(GOPACKAGES=installed_pkg)
     installed += installed_pkg

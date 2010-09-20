@@ -3,6 +3,10 @@ import SCons.Tool
 import os
 import platform
 
+def find_package(env, pkg, path):
+    pkgfile = env.subst(os.path.join(*pkg.split('/'))+'$GOLIBSUFFIX')
+    return env.FindFile(pkgfile, path)
+
 def godep(env, d, *args, **kw):
     if 'HUDSON' in env['ENV']:
         lastBuild = env['ENV']['HUDSON']
@@ -66,6 +70,7 @@ def generate(env):
         SCons.Tool.Tool(t)(env)
 
     env.AddMethod(godep, 'GoDep')
+    env.AddMethod(find_package, 'FindGoPackage')
 
 def exists(env):
     return 1

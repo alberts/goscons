@@ -8,29 +8,37 @@ import subprocess
 def resolve_pkg(pkg, env, path):
     if pkg == 'C': return []
     if pkg == 'unsafe': return []
-    pkgfile = env.subst(os.path.join(*pkg.split('/'))+'$GOLIBSUFFIX')
-    fs = SCons.Node.FS.get_default_fs()
-    local_pkg_dir = fs.Dir(env['GOPROJPKGPATH'])
-    for local_pkg in env['GOPACKAGES']:
-        local_pkg_name = os.path.splitext(local_pkg_dir.rel_path(local_pkg))[0]
-        if pkg==local_pkg_name:
-            return [local_pkg]
-    for p in path:
-        fullpkgfile = p.File(pkgfile)
-        if fullpkgfile.exists():
-            return [fullpkgfile]
-    # TODO import not found. raise a scons error here?
-    return []
+    pkgpath = env.FindGoPackage(pkg,path)
+    if pkgpath is None:
+        raise SCons.Errors.UserError, 'File for package "%s" not found' % pkg
+    return [pkgpath]
 
-# TODO use gopack p filename __.PKGDEF
 def goPkgScannerFunc(node, env, path, arg=None):
     if not node.exists(): return []
     deps = []
+    # TODO use gopack p filename __.PKGDEF
     for line in open(node.abspath):
         line = line.strip()
         if line.startswith('import '):
-            pkg = line.split('"')[-2]
-            deps += resolve_pkg(pkg, env, path)
+            if line.find('"') >= 0:
+                pkg = line.split('"')[-2]
+                deps += resolve_pkg(pkg, env, path)
+            elif line.endswith(';'):
+                print node, line
+                for importspec in line.split('..'):
+                    importspec = importspec.split(' ')
+                    if len(importspec)==3:
+                        pkg = importspec[1]
+                    elif len(importspec)==4:
+                        pkg = importspec[2]
+                    else:
+                        continue
+                    #print node, pkg
+                    #deps += resolve_pkg(pkg, env, path)
+                break
+            else:
+                raise SCons.Errors.InternalError, \
+                    'Unsupported import spec: "%s"' % line
     return deps
 
 def goScannerFunc(node, env, path, arg=None):

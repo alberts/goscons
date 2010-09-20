@@ -30,6 +30,7 @@ def generate(env):
     env['BUILDERS']['Golink'] = GoLinkBuilder
     env['GORPATH'] = [env['GOPROJPKGPATH'], env['GOROOTPKGPATH']]
     env['GOLINKFLAGS'] = SCons.Util.CLVar('')
+    # TODO get rid of weird "" argument to _go_rpath
     env['GOLINKCOM'] = '$GOLINK $( ${_concat("-L ", GOPKGPATH, "", __env__)} $) -r ${_go_rpath(GORPATH,"")} $GOLINKFLAGS -o $TARGET $SOURCES'
 
 def exists(env):

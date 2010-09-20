@@ -7,6 +7,7 @@ GopackAction = SCons.Action.Action('$GOPACKCOM', '$GOPACKCOMSTR')
 GopackBuilder = SCons.Builder.Builder(action=GopackAction,
                                       source_factory=SCons.Node.FS.File,
                                       src_suffix='$GOOBJSUFFIX',
+                                      prefix='$GOLIBPREFIX',
                                       suffix='$GOLIBSUFFIX')
 
 def generate(env):
@@ -14,6 +15,7 @@ def generate(env):
     env['GOPACK'] = 'gopack'
     env['GOPACKFLAGS'] = SCons.Util.CLVar('grc')
     env['GOPACKCOM'] = '$GOPACK $GOPACKFLAGS $TARGET $SOURCES'
+    env['GOLIBPREFIX'] = ''
     env['GOLIBSUFFIX'] = '.a'
 
 def exists(env):
