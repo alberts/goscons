@@ -13,8 +13,8 @@ def godep(env, d, *args, **kw):
         d = env.Dir(os.path.join('#..','..',d,lastBuild,'archive','pkg','${GOOS}_${GOARCH}'))
     else:
         d = env.Dir(os.path.join('#..',d,'pkg','${GOOS}_${GOARCH}'))
-    env.Append(GODEPPKGPATH=d)
-    env.Append(GODEPRPATH=d)
+    env.AppendUnique(GODEPPKGPATH=d)
+    env.AppendUnique(GODEPRPATH=d)
 
 def generate(env):
     if 'GOROOT' not in env:
@@ -71,8 +71,11 @@ def generate(env):
     for t in SCons.Tool.FindAllTools(tools,env):
         SCons.Tool.Tool(t)(env)
 
-    env.AddMethod(godep, 'GoDep')
     env.AddMethod(find_package, 'FindGoPackage')
+
+    env['GODEPPKGPATH'] = []
+    env['GODEPRPATH'] = []
+    env.AddMethod(godep, 'GoDep')
 
 def exists(env):
     return 1

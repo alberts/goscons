@@ -8,3 +8,5 @@ env['CGO_LDFLAGS'] = '-luuid'
 env.GoPackages('src/pkg')
 env.GoCommands('src/cmd')
 env.GoDep('prj1')
+env.GoDep('prj1')
+env.GoDep('non_existant_prj')
