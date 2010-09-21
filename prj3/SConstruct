@@ -1,0 +1,13 @@
+# put goscons in the python path
+import os.path
+import sys
+sys.path.insert(0, os.path.dirname(sys.path[0]))
+from goscons import GoEnvironment
+env = GoEnvironment()
+prj3_6 = env.Goc('prj3.go')
+env386 = GoEnvironment(GOARCH='386')
+env386.Goc('prj3.go')
+foo_6 = env.P9Object('foo.c')
+prj3_a = env.Gopack('prj3', [prj3_6, foo_6])
+main_6 = env.Goc('main.go', GOPKGPATH='.')
+main = env.Golink('main', [main_6], GOPKGPATH='.')

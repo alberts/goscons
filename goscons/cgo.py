@@ -47,6 +47,8 @@ def generate(env):
     if platform.system() == 'Windows':
         CDCOM = 'cd /D '
     # TODO find a way to set the environment on Windows
+    # TODO environment stuff before $CGO prevents SCons from making
+    # making cgo output depend on the cgo binary
     env['CGOCOM'] = CDCOM + '${TARGET.dir} && CGOPKGPATH=$CGOPKGPATH GOARCH=$GOARCH $CGO -- $CGO_CFLAGS ${SOURCES.file}'
     env['CGOPKGPATH'] = ''
     env['CGO_ARCH_CFLAGS'] = '${_cgo_arch("CFLAGS", GOARCH)}'

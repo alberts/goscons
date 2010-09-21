@@ -13,3 +13,4 @@ _cgo_gotypes.go
 *.so
 6.out
 _testmain.go
+*.a
