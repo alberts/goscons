@@ -56,7 +56,6 @@ def gopackage(env, srcdir, *args, **kw):
 
     pkgfile = os.path.join(fs.Dir('#src/pkg').rel_path(srcdir.dir), env.subst('${GOLIBPREFIX}'+srcdir.name +'${GOLIBSUFFIX}'))
     installed_pkg = env.InstallAs(local_pkg_dir.File(pkgfile), pkg[0], *args, **kw)
-    env.Append(GOPACKAGES=installed_pkg)
     installed += installed_pkg
     return installed
 
@@ -78,8 +77,6 @@ def gopackages(env, srcdir, *args, **kw):
 def generate(env):
     env.AddMethod(gopackage, 'GoPackage')
     env.AddMethod(gopackages, 'GoPackages')
-    # TODO remove this when we have FindFile in goscanner
-    env['GOPACKAGES'] = []
 
 def exists(env):
     return 1
