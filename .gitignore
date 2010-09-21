@@ -7,3 +7,6 @@ _cgo_gotypes.go
 *.cgo1.go
 *.cgo2.c
 .sconsign*
+*.pyc
+*.o
+*.so
