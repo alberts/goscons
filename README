@@ -1,0 +1,85 @@
+goscons
+=======
+
+goscons is a set of SCons tools for building Go code.
+
+goscons supports Cgo.
+
+goscons includes a helper application based on the one from sconsgo,
+which can be found at:
+
+https://launchpad.net/sconsgo
+
+
+Installation
+============
+
+To get started, do the following:
+
+1. Set GOROOT in your environment to point to your Go distribution
+
+2. Run scons to install goscons-helper to $GOROOT/bin.
+
+3. Run ./test.sh to do some tests.
+
+4. Set PYTHONPATH in your environment to point to the top-level
+goscons directory.
+
+5. Look in the prj1 and prj2 directories for some examples.
+
+If PYTHONPATH is set, the following SConstruct should work to build a
+simple Go project:
+
+from goscons import GoEnvironment
+env = GoEnvironment()
+env.GoPackages('src/pkg')
+env.GoCommands('src/cmd')
+
+
+gccgo
+=====
+
+Work was started on support for gccgo, but the compiler is missing
+some features that are needed to support dependency resolution and
+automatic construction of the link commands.
+
+http://groups.google.com/group/golang-nuts/browse_thread/thread/0ef96b1e6bbb1c60
+
+
+GoDep and Hudson
+================
+
+By default, GoDep assumes that project directories are all located in
+the same directory. This is not the case when one uses Hudson, where
+projects are located at
+
+    /var/lib/hudson/jobs/PROJECT/workspace
+
+To allow GoDep to find projects when building under Hudson, set an
+environment variable HUDSON to either "lastSuccessful" or
+"lastStable". This can be done under
+
+    Manage Hudson | Configure System
+
+in the Hudson web interface.
+
+
+Bugs
+====
+
+Please report bugs to Albert Strasheim <fullung@gmail.com>.
+
+
+About the tests
+===============
+
+The tests assume you have the 386 tools available, so if you are on
+amd64, go to $GOROOT/src and run:
+
+    GOARCH=386 ./make.bash
+
+You might need to install 32-bit versions of packages like glibc-devel
+for this to work, so try something like:
+
+    yum install glibc-devel.i686
+
