@@ -1,4 +1,5 @@
 _obj
+_test
 *.6
 *.8
 *.os
@@ -10,3 +11,4 @@ _cgo_gotypes.go
 *.pyc
 *.o
 *.so
+6.out
