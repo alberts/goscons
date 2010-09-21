@@ -12,3 +12,4 @@ _cgo_gotypes.go
 *.o
 *.so
 6.out
+_testmain.go

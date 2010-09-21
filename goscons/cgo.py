@@ -52,7 +52,7 @@ def generate(env):
     env['CGO_ARCH_CFLAGS'] = '${_cgo_arch("CFLAGS", GOARCH)}'
     env['CGO_AMD64_CFLAGS'] = '-m64'
     env['CGO_386_CFLAGS'] = '-m32'
-    env['CGO_CFLAGS'] = '-fPIC -O2'
+    env['CGO_CFLAGS'] = '-O2'
     env['CGO_AMD64_LINKFLAGS'] = '-m64'
     env['CGO_386_LINKFLAGS'] = '-m32'
     env['CGO_LINKFLAGS'] = '${_cgo_arch("LINKFLAGS", GOARCH)}'
