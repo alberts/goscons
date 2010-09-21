@@ -1,0 +1,10 @@
+# put goscons in the python path
+import os.path
+import sys
+sys.path.insert(0, os.path.dirname(sys.path[0]))
+from goscons import GoEnvironment
+env = GoEnvironment()
+env['CGO_LDFLAGS'] = '-luuid'
+env.GoPackages('src/pkg')
+env.GoCommands('src/cmd')
+env.GoDep('prj1')

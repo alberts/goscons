@@ -1,0 +1,9 @@
+_obj
+*.6
+*.8
+*.os
+_cgo_defun.c
+_cgo_gotypes.go
+*.cgo1.go
+*.cgo2.c
+.sconsign*

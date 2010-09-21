@@ -48,7 +48,7 @@ def gopackage(env, srcdir, *args, **kw):
         cgolib = env.SharedLibrary(target=srcdir.File(env.subst('_cgo_$SHLIBSUFFIX')),
                                    source=cgo2,
                                    CFLAGS='$CGO_ARCH_CFLAGS $CGO_CFLAGS',
-                                   LINKFLAGS='$CGO_LDFLAGS -lpthread -lm',
+                                   LINKFLAGS='$CGO_LINKFLAGS -pthread -lm',
                                    *args, **kw)
         pkgparts = env.subst(fs.Dir('#src/pkg').rel_path(srcdir)).split(os.path.sep)
         installed_cgolib = local_pkg_dir.File(env.subst('cgo_%s$SHLIBSUFFIX' % '_'.join(pkgparts)))

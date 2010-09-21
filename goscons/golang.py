@@ -10,9 +10,11 @@ def find_package(env, pkg, path):
 def godep(env, d, *args, **kw):
     if 'HUDSON' in env['ENV']:
         lastBuild = env['ENV']['HUDSON']
-        env.Append(GOPKGPATH=env.Dir(os.path.join('#..','..',d,lastBuild,'archive','pkg','${GOOS}_$GOARCH')))
+        d = env.Dir(os.path.join('#..','..',d,lastBuild,'archive','pkg','${GOOS}_${GOARCH}'))
     else:
-        env.Append(GOPKGPATH=env.Dir(os.path.join('#..',d,'pkg','${GOOS}_$GOARCH')))
+        d = env.Dir(os.path.join('#..',d,'pkg','${GOOS}_${GOARCH}'))
+    env.Append(GODEPPKGPATH=d)
+    env.Append(GODEPRPATH=d)
 
 def generate(env):
     if 'GOROOT' not in env:
@@ -45,8 +47,8 @@ def generate(env):
     env['GOPROJBINPATH'] = env.Dir('#bin/${GOOS}_$GOARCH')
     env['GOROOTPKGPATH'] = env.Dir('$GOROOT/pkg/${GOOS}_$GOARCH')
     env['GOPROJPKGPATH'] = env.Dir('#pkg/${GOOS}_$GOARCH')
-    env['GOPKGPATH'] = [env['GOPROJPKGPATH'], env['GOROOTPKGPATH']]
-
+    env['GOPKGPATH'] = [env['GOPROJPKGPATH'], '$GODEPPKGPATH', env['GOROOTPKGPATH']]
+    env['GOSCONSHELPER'] = 'goscons-helper'
     env['GOFILESUFFIX'] = '.go'
     tools = [
         'gopkg',

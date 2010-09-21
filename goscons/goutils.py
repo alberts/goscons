@@ -3,15 +3,17 @@ import SCons.Errors
 import os.path
 
 def helper(source, env):
-    helper = env.subst(os.path.join('$GOROOT', 'bin', 'scons-go-helper'))
+    source.attributes.cgo = False
+    source.attributes.go_imports = []
+    # if no helper is defined, don't continue
+    if env['GOSCONSHELPER'] is None: return
+    helper = env.subst(os.path.join('$GOROOT', 'bin', '$GOSCONSHELPER'))
     if not os.path.isfile(helper):
-        raise SCons.Errors.UserError, '$GOROOT/bin/scons-go-helper is missing'
+        raise SCons.Errors.UserError, '%s is missing' % helper
     p = Popen([helper, '-mode=both', source.abspath], stdout=PIPE, stderr=PIPE)
     out, err = p.communicate()
     if p.returncode != 0:
         raise SCons.Errors.UserError, err.strip()
-    source.attributes.cgo = False
-    source.attributes.go_imports = []
     for line in out.split('\n'):
         line = line.strip()
         if line.startswith('package '):
