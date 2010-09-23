@@ -2,6 +2,7 @@ import SCons.Errors
 import SCons.Tool
 import os
 import platform
+import re
 
 def find_package(env, pkg, path):
     pkgfile = env.subst(os.path.join(*pkg.split('/'))+'$GOLIBSUFFIX')
@@ -16,6 +17,7 @@ def godep(env, d, *args, **kw):
     env.AppendUnique(GODEPPKGPATH=d)
     env.AppendUnique(GODEPRPATH=d)
 
+# TODO add $GOROOT/bin to PATH automatically?
 def generate(env):
     if 'GOROOT' not in env:
         if 'GOROOT' not in os.environ:
@@ -37,7 +39,7 @@ def generate(env):
         else:
             if platform.machine() == 'x86_64':
                 env['GOARCH'] = 'amd64'
-            elif platform.machine() == 'i386':
+            elif re.match('i\d86', platform.machine()):
                 # TODO not a good guess on darwin
                 env['GOARCH'] = '386'
             else:

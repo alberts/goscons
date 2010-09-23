@@ -18,16 +18,18 @@ To get started, do the following:
 
 1. Set GOROOT in your environment to point to your Go distribution.
 
-2. On Mac OS X, it is also necessary to set GOARCH.
+2. Add $GOROOT/bin to your PATH.
 
-3. Run scons to install goscons-helper to $GOROOT/bin.
+3. On Mac OS X, it is also necessary to set GOARCH.
 
-4. Run ./test.sh to do some tests.
+4. Run scons to install goscons-helper to $GOROOT/bin.
 
-5. Set PYTHONPATH in your environment to point to the top-level
+5. Run ./test.sh to do some tests.
+
+6. Set PYTHONPATH in your environment to point to the top-level
 goscons directory.
 
-6. Look in the prj1 and prj2 directories for some examples.
+7. Look in the prj1 and prj2 directories for some examples.
 
 If PYTHONPATH is set, the following SConstruct should work to build a
 simple Go project:
