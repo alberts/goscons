@@ -4,10 +4,9 @@ import sys
 sys.path.insert(0, os.path.dirname(sys.path[0]))
 from goscons import GoEnvironment
 env = GoEnvironment()
-env['CGO_LDFLAGS'] = '-luuid'
+env['CGO_LINKFLAGS'] = '-luuid'
 env.GoPackages('src/pkg')
 env.GoCommands('src/cmd')
 # call GoDep twice for prj1
 env.GoDep('prj1')
 env.GoDep('prj1')
-env.GoDep('non_existant_prj')

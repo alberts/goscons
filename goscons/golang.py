@@ -8,12 +8,15 @@ def find_package(env, pkg, path):
     pkgfile = env.subst(os.path.join(*pkg.split('/'))+'$GOLIBSUFFIX')
     return env.FindFile(pkgfile, path)
 
-def godep(env, d, *args, **kw):
+def godep(env, dep, *args, **kw):
     if 'HUDSON' in env['ENV']:
         lastBuild = env['ENV']['HUDSON']
-        d = env.Dir(os.path.join('#..','..',d,lastBuild,'archive','pkg','${GOOS}_${GOARCH}'))
+        d = env.Dir(os.path.join('#..','..',dep,lastBuild,'archive','pkg','${GOOS}_${GOARCH}'))
     else:
-        d = env.Dir(os.path.join('#..',d,'pkg','${GOOS}_${GOARCH}'))
+        d = env.Dir(os.path.join('#..',dep,'pkg','${GOOS}_${GOARCH}'))
+    if not d.isdir():
+        raise SCons.Errors.UserError, \
+            'Missing dependency: %s' % dep
     env.AppendUnique(GODEPPKGPATH=d)
     env.AppendUnique(GODEPRPATH=d)
 
@@ -59,7 +62,8 @@ def generate(env):
         'goc',
         'golink',
         'plan9c',
-        'gopack'
+        'gopack',
+        'gotest'
         ]
 
     if env['GOARCH'] == 'amd64':

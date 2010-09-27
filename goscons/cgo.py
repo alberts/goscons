@@ -31,9 +31,9 @@ CgoBuilder = SCons.Builder.Builder(action=CgoAction,
 
 def _cgo_arch(flags, arch, f=lambda x: x, target=None, source=None):
     if arch == 'amd64':
-        return '$CGO_AMD64_%s' % flags
+        return '${CGO_AMD64_%s}' % flags
     elif arch == '386':
-        return '$CGO_386_%s' % flags
+        return '${CGO_386_%s}' % flags
     else:
         raise SCons.Errors.InternalError, \
             'Unsupported GOARCH: %s' % arch
@@ -57,7 +57,7 @@ def generate(env):
     env['CGO_CFLAGS'] = '-O2'
     env['CGO_AMD64_LINKFLAGS'] = '-m64'
     env['CGO_386_LINKFLAGS'] = '-m32'
-    env['CGO_LINKFLAGS'] = '${_cgo_arch("LINKFLAGS", GOARCH)}'
+    env['CGO_LINKFLAGS'] = ''
     env['CGOPKGPATH'] = ''
 
 def exists(env):

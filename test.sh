@@ -2,6 +2,11 @@
 set -xe
 scons -C prj1 -f SConstruct -c
 scons -C prj1 -f SConstruct
+scons -C prj1 -f SConstruct test
+scons -C prj1 -f SConstruct -c
+scons -C prj1 -f SConstruct test
+CRASH=1 scons -C prj1 -f SConstruct test || true
+scons -C prj1 -f SConstruct
 scons -C prj1 -f SConstruct.386 -c
 scons -C prj1 -f SConstruct.386
 scons -C prj2 -f SConstruct -c

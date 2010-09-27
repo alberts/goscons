@@ -180,7 +180,13 @@ func main() {
 		for fileNode := range parseArgs() {
 			fmt.Println(fileNode.Name.Name)
 		}
-	case "both":
+	case "tests":
+		for fileNode := range parseArgs() {
+			for decl := range extractTests(fileNode) {
+				fmt.Printf("%s.%s\n", fileNode.Name.Name, decl.Name.Name)
+			}
+		}
+	case "package_imports":
 		for fileNode := range parseArgs() {
 			fmt.Printf("package %s\n", fileNode.Name.Name)
 			for spec := range extractImports(fileNode) {
@@ -188,8 +194,13 @@ func main() {
 				fmt.Printf("import %s\n", importPath)
 			}
 		}
-	case "tests":
+	case "package_imports_tests":
 		for fileNode := range parseArgs() {
+			fmt.Printf("package %s\n", fileNode.Name.Name)
+			for spec := range extractImports(fileNode) {
+				importPath, _ := strconv.Unquote(string(spec.Path.Value))
+				fmt.Printf("import %s\n", importPath)
+			}
 			for decl := range extractTests(fileNode) {
 				fmt.Printf("%s.%s\n", fileNode.Name.Name, decl.Name.Name)
 			}

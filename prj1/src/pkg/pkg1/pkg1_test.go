@@ -1,11 +1,12 @@
-package pkg1_test
+package pkg1
 
 import (
-	. "pkg1"
+	"fmt"
 	"testing"
 )
 
 func TestPkg1(t *testing.T) {
+	fmt.Printf("pkg1.TestPkg1\n")
 	Foo()
 }
 
