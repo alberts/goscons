@@ -11,26 +11,32 @@ def is_source(source):
     if source.name=='_testmain.go': return False
     return True
 
-def gotest(env, srcdir, gofiles, cgo_obj, cgolib, *args, **kw):
+def gotest(env, pkg, srcdir, gofiles, cgo_obj, cgolib, *args, **kw):
+    pkgname = pkg.replace(os.sep, '/')
     source = sorted(srcdir.glob('*_test.go'))
     if len(source)==0: return
     obj = env.subst('_gotest_$GOOBJSUFFIX')
     objfiles = env.Goc(srcdir.File(obj), source + gofiles, *args, **kw)
-    testpkg = srcdir.Dir('_test').File(env.subst('${GOLIBPREFIX}'+srcdir.name+'${GOLIBSUFFIX}'))
-    testpkg = env.Gopack(testpkg, objfiles + cgo_obj, *args, **kw)
+    testpkgdir = srcdir.Dir('_test').Dir(pkg).dir
+    testpkgfile = testpkgdir.File(env.subst('${GOLIBPREFIX}'+srcdir.name+'${GOLIBSUFFIX}'))
+    testpkg = env.Gopack(testpkgfile, objfiles + cgo_obj, *args, **kw)
     gopkgpath = [srcdir.Dir('_test'), '$GOPKGPATH']
-    testmain_obj = env.Goc(env.GoTestMain(source), GOPKGPATH=gopkgpath)
+    testmain_obj = env.Goc(env.GoTestMain(source, GOPACKAGE=pkgname), GOPKGPATH=gopkgpath)
     bin = env.Golink(srcdir.File(env.subst('$GOTESTBIN')), testmain_obj, GOPKGPATH=gopkgpath)
     # explicitly depend on the package's cgo lib, if any
     env.Depends(bin, cgolib)
     return bin
 
 # TODO need to propogate args, kw into env
-def gopackage(env, srcdir, *args, **kw):
+def gopackage(env, srcdir, basedir=None, *args, **kw):
     fs = SCons.Node.FS.get_default_fs()
     srcdir = fs.Dir(srcdir)
-    source = sorted(srcdir.glob('*.go'))
+    if basedir is None:
+        basedir = srcdir.dir
+    else:
+        basedir = fs.Dir(basedir)
 
+    source = sorted(srcdir.glob('*.go'))
     source = filter(is_source, source)
     cgofiles = filter(lambda x: goutils.is_cgo_input(x, env), source)
     gofiles = sorted(list(set(source)-set(cgofiles)))
@@ -67,24 +73,24 @@ def gopackage(env, srcdir, *args, **kw):
                                    CFLAGS='${CGO_ARCH_CFLAGS} ${CGO_CFLAGS}',
                                    LINKFLAGS='${_cgo_arch("LINKFLAGS", GOARCH)} ${CGO_LINKFLAGS} -pthread -lm',
                                    *args, **kw)
-        pkgparts = env.subst(fs.Dir('#src/pkg').rel_path(srcdir)).split(os.path.sep)
+        pkgparts = env.subst(basedir.rel_path(srcdir)).split(os.path.sep)
         cgolib_path = local_pkg_dir.File(env.subst('cgo_%s$SHLIBSUFFIX' % '_'.join(pkgparts)))
         installed_cgolib = env.InstallAs(cgolib_path, cgolib, *args, **kw)
         installed += installed_cgolib
     else:
         installed_cgolib = []
 
-    pkgfile = os.path.join(fs.Dir('#src/pkg').rel_path(srcdir.dir), env.subst('${GOLIBPREFIX}'+srcdir.name +'${GOLIBSUFFIX}'))
+    pkgfile = os.path.join(basedir.rel_path(srcdir.dir), env.subst('${GOLIBPREFIX}'+srcdir.name +'${GOLIBSUFFIX}'))
     installed_pkg = env.InstallAs(local_pkg_dir.File(pkgfile), pkg[0], *args, **kw)
     installed += installed_pkg
 
-    test = gotest(env, srcdir, gofiles, cgo_obj, installed_cgolib)
+    pkg = basedir.rel_path(srcdir)
+    test = gotest(env, pkg, srcdir, gofiles, cgo_obj, installed_cgolib)
     if test:
         test_aliases = []
         for t in test:
-            i = env['_GOTEST_COUNT']
-            env['_GOTEST_COUNT'] += 1
-            a = env.Alias('test-%d' % i, t, '${SOURCES.abspath}')
+            alias = 'test_%s' % basedir.rel_path(srcdir).replace(os.sep, '_')
+            a = env.Alias(alias, t, '${SOURCES.abspath}')
             env.AlwaysBuild(a)
             test_aliases += a
         env.AlwaysBuild(env.Alias('test', test_aliases))
@@ -93,10 +99,10 @@ def gopackage(env, srcdir, *args, **kw):
 
     return installed
 
-def gopackages(env, srcdir, *args, **kw):
+def gopackages(env, basedir, *args, **kw):
     fs = SCons.Node.FS.get_default_fs()
     pkgdirs = []
-    for root, dirs, files in os.walk(srcdir):
+    for root, dirs, files in os.walk(basedir):
         root = fs.Dir(root)
         ispkg = False
         for f in files:
@@ -106,10 +112,9 @@ def gopackages(env, srcdir, *args, **kw):
                 ispkg = True
                 break
         if ispkg: pkgdirs.append(root.abspath)
-    return map(lambda x: env.GoPackage(x, *args, **kw), pkgdirs)
+    return map(lambda x: env.GoPackage(x, basedir, *args, **kw), pkgdirs)
 
 def generate(env):
-    env['_GOTEST_COUNT'] = 0
     env.AddMethod(gopackage, 'GoPackage')
     env.AddMethod(gopackages, 'GoPackages')
 

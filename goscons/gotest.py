@@ -30,7 +30,7 @@ def GenerateTestMain(target, source, env):
             benchmarks.append('\ttesting.Benchmark{ "%s", %s },' % (b,b))
     fp = open(target[0].abspath, 'wb')
     params = {
-        'imports' : 'import "%s"' % goutils.package_name(s, env),
+        'imports' : 'import "%s"' % env['GOPACKAGE'],
         'tests' : '\n'.join(tests),
         'benchmarks' : '\n'.join(benchmarks)
         }
@@ -50,6 +50,7 @@ GoTestMainBuilder = SCons.Builder.Builder(action='$GOTESTMAINCOM',
 def generate(env):
     env['BUILDERS']['GoTestMain'] = GoTestMainBuilder
     env['GOTESTMAINCOM'] = GoTestMainAction
+    env['GOPACKAGE'] = None
 
 def exists(env):
     return 1
