@@ -106,10 +106,9 @@ def gopackage(env, srcdir, basedir=None, *args, **kw):
     objfiles += env.Goc(srcdir.File(obj), gofiles, GOPREFIX=projprefix, *args, **kw)
 
     if len(cgofiles)>0:
+        cflags = '-FVw -I"$GOROOT/src/pkg/runtime" ${_go_ifarch("amd64","-D_64BIT",__env__)}'
         cgo_defun = filter(lambda x: x.name=='_cgo_defun.c', cgo_out)
-        cgo_obj = env.P9Object(cgo_defun,
-                               P9CFLAGS='-FVw -I"$GOROOT/src/pkg/runtime" -D_64BIT',
-                               *args, **kw)
+        cgo_obj = env.GoObject(cgo_defun, GOCFLAGS=cflags, *args, **kw)
         objfiles += cgo_obj
     else:
         cgo_obj = []

@@ -2,6 +2,19 @@ from subprocess import Popen, PIPE
 import SCons.Errors
 import os.path
 
+def createObjBuilders(env):
+    try:
+        goobj = env['BUILDERS']['GoObject']
+    except KeyError:
+        goobj = SCons.Builder.Builder(action={},
+                                      emitter={},
+                                      prefix='$GOOBJPREFIX',
+                                      suffix='$GOOBJSUFFIX',
+                                      src_builder=['CFile'],
+                                      source_scanner=SourceFileScanner)
+        env['BUILDERS']['GoObject'] = static_obj
+    return static_obj
+
 def helper(source, env):
     source.attributes.cgo = False
     source.attributes.go_package = ''

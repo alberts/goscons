@@ -1,5 +1,5 @@
+from goscanner import GoScanner
 import SCons.Errors
-import SCons.Tool
 import os
 import platform
 import re
@@ -65,14 +65,15 @@ def generate(env):
         'goc',
         'golink',
         'plan9c',
+        'plan9a',
         'gopack',
         'gotest'
         ]
 
     if env['GOARCH'] == 'amd64':
-        tools += ['goc6','golink6','plan9c6']
+        tools += ['goc6','golink6','plan9c6','plan9a6']
     elif env['GOARCH'] == '386':
-        tools += ['goc8','golink8','plan9c8']
+        tools += ['goc8','golink8','plan9c8','plan9a8']
     else:
         raise SCons.Errors.InternalError, \
             'Unsupported GOARCH: %s' % env['GOARCH']
@@ -85,6 +86,8 @@ def generate(env):
     env['GODEPPKGPATH'] = []
     env['GODEPRPATH'] = []
     env.AddMethod(godep, 'GoDep')
+
+    SCons.Tool.SourceFileScanner.add_scanner('.go', GoScanner)
 
 def exists(env):
     return 1

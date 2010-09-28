@@ -1,5 +1,6 @@
 def generate(env):
-    env['P9CC'] = '6c'
+    env['GOCC'] = '6c'
+    env['GOOBJSUFFIX'] = '.6'
 
 def exists(env):
-    return env.Detect('6c')
+    return 1
