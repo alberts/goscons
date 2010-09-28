@@ -46,8 +46,6 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
-	"unicode"
-	"utf8"
 )
 
 func buildConfig() (config map[string]string) {
@@ -112,8 +110,7 @@ func extractTests(fileNode *ast.File) <-chan *ast.FuncDecl {
 		if !strings.HasPrefix(s, prefix) {
 			return false
 		}
-		rune, _ := utf8.DecodeRuneInString(s[len(prefix):])
-		return unicode.IsUpper(rune)
+		return true
 	}
 	matches := func(name *ast.Ident) bool {
 		if !name.IsExported() {

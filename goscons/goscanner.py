@@ -8,7 +8,7 @@ import subprocess
 def resolve_pkg(pkg, env, path):
     if pkg == 'C': return []
     if pkg == 'unsafe': return []
-    pkgpath = env.FindGoPackage(pkg,path)
+    pkgpath = env.FindGoPackage(pkg, path)
     if pkgpath is None:
         raise SCons.Errors.UserError, 'File for package "%s" not found' % pkg
     return [pkgpath]
@@ -24,7 +24,7 @@ def goPkgScannerFunc(node, env, path, arg=None):
                 pkg = line.split('"')[-2]
                 deps += resolve_pkg(pkg, env, path)
             elif line.endswith(';'):
-                print node, line
+                #print node, line
                 for importspec in line.split('..'):
                     importspec = importspec.split(' ')
                     if len(importspec)==3:

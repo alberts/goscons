@@ -49,10 +49,13 @@ def generate(env):
                 raise SCons.Errors.InternalError, \
                     'Unsupported arch: %s' % platform.machine()
 
+    # TODO don't call Dir here, because it causes premature
+    # substitution of the environment
     env['GOPROJBINPATH'] = env.Dir('#bin/${GOOS}_$GOARCH')
     env['GOROOTPKGPATH'] = env.Dir('$GOROOT/pkg/${GOOS}_$GOARCH')
     env['GOPROJPKGPATH'] = env.Dir('#pkg/${GOOS}_$GOARCH')
-    env['GOPKGPATH'] = [env['GOPROJPKGPATH'], '$GODEPPKGPATH', env['GOROOTPKGPATH']]
+
+    env['GOPKGPATH'] = ['$GOPROJPKGPATH', '$GODEPPKGPATH', '$GOROOTPKGPATH']
     env['GOSCONSHELPER'] = 'goscons-helper'
     env['GOFILESUFFIX'] = '.go'
     tools = [

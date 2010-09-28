@@ -32,8 +32,8 @@ def generate(env):
     env['GOPACKFLAGS'] = SCons.Util.CLVar('cru')
     env['GOPACKCOM'] = '$GOPACK $GOPACKFLAGS $TARGET $SOURCES'
     # TODO pkgpath depends on arch
-    env['GOPKGPATH'] = [env['GOPROJPKGPATH'],'$GCCGOPREFIX/lib64']
-    env['GORPATH'] = [env['GOPROJPKGPATH']]
+    env['GOPKGPATH'] = ['$GOPROJPKGPATH', '$GCCGOPREFIX/lib64']
+    env['GORPATH'] = ['$GOPROJPKGPATH']
     env.AddMethod(find_package, 'FindGoPackage')
 
 def exists(env):
