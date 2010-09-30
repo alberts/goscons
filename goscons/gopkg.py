@@ -121,6 +121,7 @@ def gopackage(env, srcdir, basedir=None, *args, **kw):
     pkg = env.Gopack(pkg, objfiles, *args, **kw)
 
     local_pkg_dir = fs.Dir(env['GOPROJPKGPATH'])
+    goroot_pkg_dir = fs.Dir(env['GOROOTPKGPATH'])
 
     installed = []
     if len(cgofiles)>0:
@@ -131,15 +132,24 @@ def gopackage(env, srcdir, basedir=None, *args, **kw):
                                    LINKFLAGS='${_cgo_arch("LINKFLAGS", GOARCH)} ${CGO_LINKFLAGS} -pthread -lm',
                                    *args, **kw)
         pkgparts = env.subst(basedir.rel_path(srcdir)).split(os.path.sep)
-        cgolib_path = local_pkg_dir.File(env.subst('cgo_%s$SHLIBSUFFIX' % '_'.join(pkgparts)))
-        installed_cgolib = env.InstallAs(cgolib_path, cgolib, *args, **kw)
+        cgofile = env.subst('cgo_%s$SHLIBSUFFIX' % '_'.join(pkgparts))
+
+        local_path = local_pkg_dir.File(cgofile)
+        installed_cgolib = env.InstallAs(local_path, cgolib, *args, **kw)
         installed += installed_cgolib
+
+        goroot_path = goroot_pkg_dir.File(cgofile)
+        env.Alias('goinstall', env.InstallAs(goroot_path, cgolib, *args, **kw))
     else:
         installed_cgolib = []
 
     pkgfile = os.path.join(basedir.rel_path(srcdir.dir), env.subst('${GOLIBPREFIX}'+srcdir.name +'${GOLIBSUFFIX}'))
-    installed_pkg = env.InstallAs(local_pkg_dir.File(pkgfile), pkg[0], *args, **kw)
+    local_path = local_pkg_dir.File(pkgfile)
+    installed_pkg = env.InstallAs(local_path, pkg[0], *args, **kw)
     installed += installed_pkg
+
+    goroot_path = goroot_pkg_dir.File(pkgfile)
+    env.Alias('goinstall', env.InstallAs(goroot_path, pkg[0], *args, **kw))
 
     pkg = basedir.rel_path(srcdir)
     test = gotest(env, pkg, srcdir, gofiles, cgo_obj, installed_cgolib)

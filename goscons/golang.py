@@ -53,6 +53,7 @@ def generate(env):
 
     # TODO don't call Dir here, because it causes premature
     # substitution of the environment
+    env['GOROOTBINPATH'] = env.Dir('$GOROOT/bin')
     env['GOPROJBINPATH'] = env.Dir('#bin/${GOOS}_$GOARCH')
     env['GOROOTPKGPATH'] = env.Dir('$GOROOT/pkg/${GOOS}_$GOARCH')
     env['GOPROJPKGPATH'] = env.Dir('#pkg/${GOOS}_$GOARCH')

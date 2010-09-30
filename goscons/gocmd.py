@@ -17,8 +17,19 @@ def gocommand(env, srcdir, *args, **kw):
     objfiles = env.Goc(srcdir.File(obj), gofiles, *args, **kw)
     name = '%s%s%s' % (env.subst('$GOCMDPREFIX'), srcdir.name, env.subst('$GOCMDSUFFIX'))
     bin = env.Golink(srcdir.File(name), objfiles)
+
     local_bin_dir = fs.Dir(env['GOPROJBINPATH'])
-    return env.InstallAs(local_bin_dir.File(name), bin[0], *args, **kw)
+    goroot_bin_dir = fs.Dir(env['GOROOTBINPATH'])
+
+    install_name = ''.join([env.subst('$GOCMDPREFIX'), srcdir.name, env.subst('$GOCMDSUFFIX')])
+
+    local_path = local_bin_dir.File(install_name)
+    installed = env.InstallAs(local_path, bin[0], *args, **kw)
+
+    goroot_path = goroot_bin_dir.File(install_name)
+    env.Alias('goinstall', env.InstallAs(goroot_path, bin[0], *args, **kw))
+
+    return installed
 
 def gocommands(env, srcdir, *args, **kw):
     fs = SCons.Node.FS.get_default_fs()
