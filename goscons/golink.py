@@ -7,6 +7,8 @@ import SCons.Util
 # relinked when they change
 def scanner_function(node, env, path):
     f = lambda x: hasattr(x.attributes,'go_pkg')
+    # TODO this is buggy... sometimes new children appear between
+    # builds or the order changes
     deps = filter(f, node.all_children())
     return deps
 
@@ -16,7 +18,8 @@ GoObjectScanner = SCons.Scanner.Scanner(scanner_function)
 
 GoLinkBuilder = SCons.Builder.Builder(action=GoLinkAction,
                                       source_factory=SCons.Node.FS.File,
-                                      source_scanner=GoObjectScanner,
+                                      # TODO buggy... see comment above
+                                      #source_scanner=GoObjectScanner,
                                       src_suffix='$GOOBJSUFFIX')
 
 def _go_rpath(lst, env, f=lambda x: x, target=None, source=None):
@@ -30,7 +33,6 @@ def generate(env):
     env['BUILDERS']['Golink'] = GoLinkBuilder
     env['GORPATH'] = ['$GOPROJPKGPATH', '$GODEPRPATH', '$GOROOTPKGPATH']
     env['GOLINKFLAGS'] = SCons.Util.CLVar('')
-    # TODO get rid of weird "" argument to _go_rpath
     env['GOLINKCOM'] = '$GOLINK $( ${_concat("-L ", GOPKGPATH, "", __env__)} $) -r ${_go_rpath(GORPATH, __env__)} $GOLINKFLAGS -o $TARGET $SOURCES'
 
 def exists(env):

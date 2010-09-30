@@ -58,6 +58,7 @@ def generate(env):
     env['GOPKGPATH'] = ['$GOPROJPKGPATH', '$GODEPPKGPATH', '$GOROOTPKGPATH']
     env['GOSCONSHELPER'] = 'goscons-helper'
     env['GOFILESUFFIX'] = '.go'
+
     tools = [
         'gopkg',
         'gocmd',
@@ -69,7 +70,6 @@ def generate(env):
         'gopack',
         'gotest'
         ]
-
     if env['GOARCH'] == 'amd64':
         tools += ['goc6','golink6','plan9c6','plan9a6']
     elif env['GOARCH'] == '386':
