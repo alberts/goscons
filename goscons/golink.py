@@ -20,6 +20,8 @@ GoLinkBuilder = SCons.Builder.Builder(action=GoLinkAction,
                                       source_factory=SCons.Node.FS.File,
                                       # TODO buggy... see comment above
                                       #source_scanner=GoObjectScanner,
+                                      prefix='$PROGPREFIX',
+                                      suffix='$PROGSUFFIX',
                                       src_suffix='$GOOBJSUFFIX')
 
 def _go_rpath(lst, env, f=lambda x: x, target=None, source=None):

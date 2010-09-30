@@ -32,6 +32,8 @@ def generate(env):
             env['GOOS'] = 'linux'
         elif platform.system() == 'Darwin':
             env['GOOS'] = 'darwin'
+        elif platform.system() == 'Windows':
+            env['GOOS'] = 'windows'
         else:
             raise SCons.Errors.InternalError, \
                 'Unsupported platform: %s' % platform.system()

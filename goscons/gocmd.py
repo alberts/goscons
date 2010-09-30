@@ -15,10 +15,10 @@ def gocommand(env, srcdir, *args, **kw):
     gofiles = unique_files(filter(is_source, source))
     obj = env.subst('_go_$GOOBJSUFFIX')
     objfiles = env.Goc(srcdir.File(obj), gofiles, *args, **kw)
-    bin = env.Golink(srcdir.File(srcdir.name), objfiles)
+    name = '%s%s%s' % (env.subst('$GOCMDPREFIX'), srcdir.name, env.subst('$GOCMDSUFFIX'))
+    bin = env.Golink(srcdir.File(name), objfiles)
     local_bin_dir = fs.Dir(env['GOPROJBINPATH'])
-    install_name = '%s%s%s' % (env.subst('$GOCMDPREFIX'), srcdir.name, env.subst('$GOCMDSUFFIX'))
-    return env.InstallAs(local_bin_dir.File(install_name), bin[0], *args, **kw)
+    return env.InstallAs(local_bin_dir.File(name), bin[0], *args, **kw)
 
 def gocommands(env, srcdir, *args, **kw):
     fs = SCons.Node.FS.get_default_fs()
@@ -37,8 +37,8 @@ def gocommands(env, srcdir, *args, **kw):
 def generate(env):
     env.AddMethod(gocommand, 'GoCommand')
     env.AddMethod(gocommands, 'GoCommands')
-    env['GOCMDPREFIX'] = ''
-    env['GOCMDSUFFIX'] = ''
+    env['GOCMDPREFIX'] = '$PROGPREFIX'
+    env['GOCMDSUFFIX'] = '$PROGSUFFIX'
 
 def exists(env):
     return 1
