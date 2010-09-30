@@ -1,4 +1,5 @@
 from subprocess import Popen, PIPE
+from goutils import unique_files
 import SCons.Node.FS
 import glob
 import goutils
@@ -67,7 +68,7 @@ def is_source(source, env):
 
 def gotest(env, pkg, srcdir, gofiles, cgo_obj, cgolib, *args, **kw):
     pkgname = pkg.replace(os.sep, '/')
-    source = sorted(srcdir.glob('*_test.go'))
+    source = unique_files(srcdir.glob('*_test.go'))
     if len(source)==0: return
     obj = env.subst('_gotest_$GOOBJSUFFIX')
     objfiles = env.Goc(srcdir.File(obj), source + gofiles, *args, **kw)
@@ -90,14 +91,17 @@ def gopackage(env, srcdir, basedir=None, *args, **kw):
     else:
         basedir = fs.Dir(basedir)
 
-    source = sorted(srcdir.glob('*.go'))
+    source = srcdir.glob('*.go')
     source = filter(lambda x: is_source(x, env), source)
     cgofiles = filter(lambda x: goutils.is_cgo_input(x, env), source)
-    gofiles = sorted(list(set(source)-set(cgofiles)))
+    gofiles = list(set(source)-set(cgofiles))
 
     if len(cgofiles)>0:
+        cgofiles = unique_files(cgofiles)
         cgo_out = env.Cgo(cgofiles, *args, **kw)
         gofiles += filter(lambda x: x.name.endswith('.go'), cgo_out)
+
+    gofiles = unique_files(gofiles)
 
     objfiles = []
     obj = env.subst('_go_$GOOBJSUFFIX')

@@ -1,3 +1,4 @@
+from goutils import unique_files
 import SCons.Scanner
 import goutils
 import os.path
@@ -59,6 +60,7 @@ def goScannerFunc(node, env, path, arg=None):
     # them as dependencies too
     for dep in deps:
         dep.attributes.go_pkg = True
+    deps = unique_files(deps)
     node.attributes.go_deps = deps
     return deps
 

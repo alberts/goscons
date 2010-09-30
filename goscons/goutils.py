@@ -2,6 +2,11 @@ from subprocess import Popen, PIPE
 import SCons.Errors
 import os.path
 
+cmp_abspath = lambda x, y: cmp(x.abspath, y.abspath)
+
+def unique_files(files):
+    return sorted(list(set(files)), cmp=cmp_abspath)
+
 def createObjBuilders(env):
     try:
         goobj = env['BUILDERS']['GoObject']
