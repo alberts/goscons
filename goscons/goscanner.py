@@ -52,7 +52,8 @@ def goScannerFunc(node, env, path, arg=None):
         deps = goPkgScannerFunc(node, env, path, arg)
     else:
         deps = []
-        for pkg in goutils.imports(node, env):
+        imports = goutils.imports(node, env)
+        for pkg in imports:
             deps += resolve_pkg(pkg, env, path)
     # Identify deps as Go packages so that the Golink scanner can add
     # them as dependencies too

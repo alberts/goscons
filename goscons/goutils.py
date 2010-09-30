@@ -15,14 +15,13 @@ def createObjBuilders(env):
         env['BUILDERS']['GoObject'] = static_obj
     return static_obj
 
-def helper(source, env):
-    source.attributes.cgo = False
-    source.attributes.go_package = ''
-    source.attributes.go_imports = []
-    source.attributes.go_tests = []
-    source.attributes.go_benchmarks = []
-    # if no helper is defined, don't continue
-    if env['GOSCONSHELPER'] is None: return
+def helper_impl(source, env):
+    if env['GOSCONSHELPER'] is None: return False, '', [], [], []
+    cgo = False
+    go_package = ''
+    go_imports = []
+    go_tests = []
+    go_benchmarks = []
     helper = env.subst(os.path.join('$GOROOT', 'bin', '$GOSCONSHELPER'))
     if not os.path.isfile(helper):
         raise SCons.Errors.UserError, '%s is missing' % helper
@@ -37,19 +36,28 @@ def helper(source, env):
     for line in out.split('\n'):
         line = line.strip()
         if line.startswith('package '):
-            source.attributes.go_package = line.split(' ',1)[1]
+            go_package = line.split(' ',1)[1]
         elif line.startswith('import '):
             pkg = line.split(' ',1)[1]
             if pkg == 'C':
-                source.attributes.cgo = True
+                cgo = True
             else:
                 if pkg == 'unsafe': continue
-                source.attributes.go_imports.append(pkg)
+                go_imports.append(pkg)
         else:
             if line.split('.')[-1].startswith('Test'):
-                source.attributes.go_tests.append(line)
+                go_tests.append(line)
             elif line.split('.')[-1].startswith('Test'):
-                source.attributes.go_benchmarks.append(line)
+                go_benchmarks.append(line)
+    return cgo, go_package, go_imports, go_tests, go_benchmarks
+
+def helper(source, env):
+    attrs = helper_impl(source, env)
+    source.attributes.cgo, \
+        source.attributes.go_package, \
+        source.attributes.go_imports, \
+        source.attributes.go_tests, \
+        source.attributes.go_benchmarks = attrs
 
 def is_cgo_input(source, env):
     try:
