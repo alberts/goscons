@@ -5,8 +5,19 @@ scons -C prj1 -f SConstruct
 scons -C prj1 -f SConstruct test
 scons -C prj1 -f SConstruct test_pkg1
 scons -C prj1 -f SConstruct test_pkg2
+scons -C prj1 -f SConstruct bench
+scons -C prj1 -f SConstruct bench_pkg1
+scons -C prj1 -f SConstruct bench_pkg2
 scons -C prj1 -f SConstruct -c
 scons -C prj1 -f SConstruct test
+scons -C prj1 -f SConstruct -c
+scons -C prj1 -f SConstruct test_pkg1
+scons -C prj1 -f SConstruct -c
+scons -C prj1 -f SConstruct bench
+scons -C prj1 -f SConstruct -c
+scons -C prj1 -f SConstruct bench_pkg1
+scons -C prj1 -f SConstruct -c
+scons -C prj1 -f SConstruct bench_pkg2
 CRASH=1 scons -C prj1 -f SConstruct test || true
 scons -C prj1 -f SConstruct
 scons -C prj1 -f SConstruct.386 -c

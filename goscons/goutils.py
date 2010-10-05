@@ -50,9 +50,10 @@ def helper_impl(source, env):
                 if pkg == 'unsafe': continue
                 go_imports.append(pkg)
         else:
-            if line.split('.')[-1].startswith('Test'):
+            funcname = line.split('.')[-1]
+            if funcname.startswith('Test'):
                 go_tests.append(line)
-            elif line.split('.')[-1].startswith('Test'):
+            elif funcname.startswith('Bench'):
                 go_benchmarks.append(line)
     return cgo, go_package, go_imports, go_tests, go_benchmarks
 
