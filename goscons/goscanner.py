@@ -11,7 +11,7 @@ def resolve_pkg(pkg, env, path):
     if pkg == 'unsafe': return []
     pkgpath = env.FindGoPackage(pkg, path)
     if pkgpath is None:
-        raise SCons.Errors.UserError, 'File for package "%s" not found' % pkg
+        raise SCons.Errors.UserError, 'Package "%s" not found' % pkg
     return [pkgpath]
 
 def goPkgScannerFunc(node, env, path, arg=None):

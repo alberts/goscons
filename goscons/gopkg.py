@@ -78,8 +78,9 @@ def gotest(env, pkg, srcdir, gofiles, cgo_obj, cgolib, *args, **kw):
     gopkgpath = [srcdir.Dir('_test'), '$GOPKGPATH']
     testmain_obj = env.Goc(env.GoTestMain(source, GOPACKAGE=pkgname), GOPKGPATH=gopkgpath)
     bin = env.Golink(srcdir.File(env.subst('$GOTESTBIN')), testmain_obj, GOPKGPATH=gopkgpath)
-    # explicitly depend on the package's cgo lib, if any
+    # explicit dependencies to rebuild in all cases
     env.Depends(bin, cgolib)
+    env.Depends(bin, objfiles)
     return bin
 
 # TODO need to propogate args, kw into env
