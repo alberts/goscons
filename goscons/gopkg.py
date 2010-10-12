@@ -99,7 +99,8 @@ def gopackage(env, srcdir, basedir=None, *args, **kw):
 
     if len(cgofiles)>0:
         cgofiles = unique_files(cgofiles)
-        cgo_out = env.Cgo(cgofiles, *args, **kw)
+        pkgparts = env.subst(basedir.rel_path(srcdir)).split(os.path.sep)
+        cgo_out = env.Cgo(cgofiles, CGOPKGPATH=os.sep.join(pkgparts[:-1]), *args, **kw)
         gofiles += filter(lambda x: x.name.endswith('.go'), cgo_out)
 
     gofiles = unique_files(gofiles)
@@ -132,7 +133,6 @@ def gopackage(env, srcdir, basedir=None, *args, **kw):
                                    CFLAGS='${CGO_ARCH_CFLAGS} ${CGO_CFLAGS}',
                                    LINKFLAGS='${_cgo_arch("LINKFLAGS", GOARCH)} ${CGO_LINKFLAGS} -pthread -lm',
                                    *args, **kw)
-        pkgparts = env.subst(basedir.rel_path(srcdir)).split(os.path.sep)
         cgofile = env.subst('cgo_%s$SHLIBSUFFIX' % '_'.join(pkgparts))
 
         local_path = local_pkg_dir.File(cgofile)
