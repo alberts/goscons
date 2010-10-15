@@ -130,8 +130,8 @@ def gopackage(env, srcdir, basedir=None, *args, **kw):
         cgo2 = filter(lambda x: x.name.endswith('.cgo2.c'), cgo_out)
         cgolib = env.SharedLibrary(target=srcdir.File(env.subst('_cgo_$SHLIBSUFFIX')),
                                    source=cgo2,
-                                   CFLAGS='${CGO_ARCH_CFLAGS} ${CGO_CFLAGS}',
-                                   LINKFLAGS='${_cgo_arch("LINKFLAGS", GOARCH)} ${CGO_LINKFLAGS} -pthread -lm',
+                                   CFLAGS='${CGO_OSARCH_CFLAGS} ${CGO_CFLAGS}',
+                                   LINKFLAGS='${CGO_OSARCH_LINKFLAGS} ${CGO_LINKFLAGS} -pthread -lm',
                                    *args, **kw)
         cgofile = env.subst('cgo_%s$SHLIBSUFFIX' % '_'.join(pkgparts))
 

@@ -4,7 +4,7 @@ import sys
 sys.path.insert(0, os.path.dirname(sys.path[0]))
 from goscons import GoEnvironment
 env = GoEnvironment()
-env['CGO_LINKFLAGS'] = '-luuid'
+if env['GOOS']=='linux':
+    env['CGO_LINKFLAGS'] = '-luuid'
 env.GoPackages('src/pkg')
 env.GoCommands('src/cmd')
-
