@@ -28,9 +28,13 @@ def GenerateTestMain(target, source, env):
             tests.append('\ttesting.Test{ "%s", %s },' % (t,t))
         for b in goutils.benchmarks(s, env):
             benchmarks.append('\ttesting.Benchmark{ "%s", %s },' % (b,b))
+    if len(tests) > 0 or len(benchmarks) > 0:
+        imports = 'import "%s"' % env['GOPACKAGE']
+    else:
+        imports = ''
     fp = open(target[0].abspath, 'wb')
     params = {
-        'imports' : 'import "%s"' % env['GOPACKAGE'],
+        'imports' : imports,
         'tests' : '\n'.join(tests),
         'benchmarks' : '\n'.join(benchmarks)
         }
