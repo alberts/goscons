@@ -94,6 +94,7 @@ def gopackage(env, srcdir, basedir=None, *args, **kw):
 
     source = srcdir.glob('*.go')
     source = filter(lambda x: is_source(x, env), source)
+    if len(source)==0: return []
     cgofiles = filter(lambda x: goutils.is_cgo_input(x, env), source)
     gofiles = list(set(source)-set(cgofiles))
 
