@@ -3,16 +3,14 @@ import SCons.Node.FS
 import goutils
 import os.path
 
-def is_source(source):
-    test = source.name.endswith('_test.go')
-    return not test
-
 # TODO need to propogate args, kw into env
 def gocommand(env, srcdir, *args, **kw):
     fs = SCons.Node.FS.get_default_fs()
     srcdir = fs.Dir(srcdir)
     source = srcdir.glob('*.go')
-    gofiles = unique_files(filter(is_source, source))
+    source = filter(lambda x: goutils.is_source(x, env), source)
+    if len(source)==0: return []
+    gofiles = unique_files(source)
     obj = env.subst('_go_$GOOBJSUFFIX')
     objfiles = env.Goc(srcdir.File(obj), gofiles, *args, **kw)
     name = '%s%s%s' % (env.subst('$GOCMDPREFIX'), srcdir.name, env.subst('$GOCMDSUFFIX'))

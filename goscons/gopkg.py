@@ -5,67 +5,6 @@ import glob
 import goutils
 import os.path
 
-GOARCH = set(['386','amd64','arm'])
-GOOS = set(['bsd','unix','linux','windows','darwin','nacl','freebsd'])
-GOOS_BSD = set(['freebsd','darwin'])
-GOOS_UNIX = set(['freebsd','darwin','linux','nacl'])
-
-def goos_goarch():
-    for goos in GOOS:
-        for goarch in GOARCH:
-            yield goos, goarch
-
-GOOS_GOARCH = set([x for x in goos_goarch()])
-
-def is_os_arch_source(source):
-    parts = source.name.split('_')
-    if len(parts)<2: return False
-    os_arch = parts[-2], parts[-1].split('.',1)[0]
-    if os_arch in GOOS_GOARCH:
-        return os_arch
-    return None
-
-def is_arch_source(source):
-    if not source.name.find('_')>=0:
-        return False
-    arch = source.name.split('_')[-1].split('.',1)[0]
-    if arch in GOARCH:
-        return arch
-    return None
-
-def is_os_source(source):
-    if not source.name.find('_')>=0:
-        return False
-    os = source.name.split('_')[-1].split('.',1)[0]
-    if os in GOOS:
-        return os
-    return None
-
-def is_source(source, env):
-    if source.name=='_cgo_gotypes.go': return False
-    if source.name.endswith('.cgo1.go'): return False
-    if source.name.endswith('_test.go'): return False
-    if source.name=='_testmain.go': return False
-    arch = is_arch_source(source)
-    if arch:
-        os_arch = is_os_arch_source(source)
-        if os_arch:
-            os = os_arch[0]
-            if os=='bsd' and env['GOOS'] in GOOS_BSD:
-                return True
-            elif os=='unix' and env['GOOS'] in GOOS_UNIX:
-                return True
-            return os_arch==(env['GOOS'], env['GOARCH'])
-        return arch==env['GOARCH']
-    os = is_os_source(source)
-    if os:
-        if os=='bsd' and env['GOOS'] in GOOS_BSD:
-            return True
-        elif os=='unix' and env['GOOS'] in GOOS_UNIX:
-            return True
-        return os==env['GOOS']
-    return True
-
 def gotest(env, pkg, srcdir, gofiles, cgo_obj, cgolib, *args, **kw):
     pkgname = pkg.replace(os.sep, '/')
     source = unique_files(srcdir.glob('*_test.go'))
@@ -93,7 +32,7 @@ def gopackage(env, srcdir, basedir=None, *args, **kw):
         basedir = fs.Dir(basedir)
 
     source = srcdir.glob('*.go')
-    source = filter(lambda x: is_source(x, env), source)
+    source = filter(lambda x: goutils.is_source(x, env), source)
     if len(source)==0: return []
     cgofiles = filter(lambda x: goutils.is_cgo_input(x, env), source)
     gofiles = list(set(source)-set(cgofiles))
