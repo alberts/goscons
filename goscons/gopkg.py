@@ -17,9 +17,7 @@ def gotest(env, pkg, srcdir, gofiles, cgo_obj, cgolib, *args, **kw):
     gopkgpath = [srcdir.Dir('_test'), '$GOPKGPATH']
     testmain_obj = env.Goc(env.GoTestMain(source, GOPACKAGE=pkgname), GOPKGPATH=gopkgpath)
     bin = env.Golink(srcdir.File(env.subst('$GOTESTBIN')), testmain_obj, GOPKGPATH=gopkgpath)
-    # explicit dependencies to rebuild in all cases
     env.Depends(bin, cgolib)
-    env.Depends(bin, objfiles)
     return bin
 
 # TODO need to propogate args, kw into env
@@ -117,7 +115,7 @@ def gopackages(env, basedir, *args, **kw):
     for root, dirs, files in os.walk(basedir):
         root = fs.Dir(root)
         # don't scan test data, as it might contain Go code
-        if root.name=='testdata': continue
+        if root.name.lower()=='testdata': continue
         ispkg = False
         for f in files:
             if not f.endswith(env['GOFILESUFFIX']): continue

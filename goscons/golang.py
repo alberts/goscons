@@ -42,10 +42,10 @@ def generate(env):
         if 'GOARCH' in os.environ:
             env['GOARCH'] = os.environ['GOARCH']
         else:
+            # TODO use sysctl machdep.cpu.extfeatures on darwin
             if platform.machine() == 'x86_64':
                 env['GOARCH'] = 'amd64'
             elif re.match('i\d86', platform.machine()):
-                # TODO not a good guess on darwin
                 env['GOARCH'] = '386'
             else:
                 raise SCons.Errors.InternalError, \

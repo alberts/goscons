@@ -21,10 +21,11 @@ def createObjBuilders(env):
     return static_obj
 
 def helper_impl(source, env):
-    if env['GOSCONSHELPER'] is None: return False, '', [], [], []
+    if env['GOSCONSHELPER'] is None:
+        return False, '', [], [], []
     cgo = False
     go_package = ''
-    go_imports = []
+    go_imports = set()
     go_tests = []
     go_benchmarks = []
     helper = env.subst(os.path.join('$GOROOT', 'bin', '${GOSCONSHELPER}${PROGSUFFIX}'))
@@ -38,23 +39,21 @@ def helper_impl(source, env):
     out, err = p.communicate()
     if p.returncode != 0:
         raise SCons.Errors.UserError, err.strip()
-    for line in out.split('\n'):
-        line = line.strip()
-        if line.startswith('package '):
-            go_package = line.split(' ',1)[1]
-        elif line.startswith('import '):
-            pkg = line.split(' ',1)[1]
-            if pkg == 'C':
-                cgo = True
-            else:
-                if pkg == 'unsafe': continue
-                go_imports.append(pkg)
+    lines = out.strip().split('\n')
+    line = lines.pop(0)
+    go_package = line.split(' ',1)[1]
+    for line in lines:
+        parts = line.split(' ',1)
+        if len(parts)>1:
+            go_imports.add(parts[1])
         else:
             funcname = line.split('.')[-1]
             if funcname.startswith('Test'):
                 go_tests.append(line)
             elif funcname.startswith('Bench'):
                 go_benchmarks.append(line)
+    go_imports -= set(['unsafe'])
+    cgo = 'C' in go_imports
     return cgo, go_package, go_imports, go_tests, go_benchmarks
 
 def helper(source, env):

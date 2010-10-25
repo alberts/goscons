@@ -25,7 +25,6 @@ def goPkgScannerFunc(node, env, path, arg=None):
                 pkg = line.split('"')[-2]
                 deps += resolve_pkg(pkg, env, path)
             elif line.endswith(';'):
-                #print node, line
                 for importspec in line.split('..'):
                     importspec = importspec.split(' ')
                     if len(importspec)==3:
@@ -34,8 +33,6 @@ def goPkgScannerFunc(node, env, path, arg=None):
                         pkg = importspec[2]
                     else:
                         continue
-                    #print node, pkg
-                    #deps += resolve_pkg(pkg, env, path)
                 break
             else:
                 raise SCons.Errors.InternalError, \
@@ -48,18 +45,17 @@ def goScannerFunc(node, env, path, arg=None):
     except AttributeError:
         pass
     if not node.exists(): return []
-    header = open(node.abspath).read(7)
-    if header == '!<arch>':
+    if node.name.endswith(env.subst('$GOLIBSUFFIX')):
         deps = goPkgScannerFunc(node, env, path, arg)
-    else:
+    elif node.name.endswith(env.subst('$GOFILESUFFIX')):
         deps = []
         imports = goutils.imports(node, env)
         for pkg in imports:
             deps += resolve_pkg(pkg, env, path)
-    # Identify deps as Go packages so that the Golink scanner can add
-    # them as dependencies too
-    for dep in deps:
-        dep.attributes.go_pkg = True
+    else:
+        deps = []
+    for c in node.all_children():
+        deps += goScannerFunc(c, env, path, arg)
     deps = unique_files(deps)
     node.attributes.go_deps = deps
     return deps

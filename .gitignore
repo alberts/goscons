@@ -16,3 +16,4 @@ _cgo_gotypes.go
 _testmain.go
 *.a
 *~
+goscons-helper

@@ -1,7 +1,7 @@
 //
 //	helper.go
-//	SCons Go Tools
 //
+//	Copyright (c) 2010, Albert Strasheim.
 //	Copyright (c) 2010, Ross Light.
 //	All rights reserved.
 //
@@ -41,53 +41,9 @@ import (
 	"go/parser"
 	"go/token"
 	"os"
-	"path"
-	"runtime"
 	"strconv"
 	"strings"
-	"syscall"
 )
-
-func buildConfig() (config map[string]string) {
-	config = make(map[string]string)
-	prefix := getPrefix()
-	// Build info
-	config["GOOS"] = syscall.OS
-	config["GOARCH"] = syscall.ARCH
-	config["archname"] = prefix
-	// GOROOT-related stuff
-	config["GOROOT"] = runtime.GOROOT()
-	config["pkgroot"] = path.Join(runtime.GOROOT(), "pkg", syscall.OS+"_"+syscall.ARCH)
-	// GOBIN-related stuff
-	gobin := getGOBIN()
-	config["GOBIN"] = gobin
-	config["gc"] = path.Join(gobin, prefix+"g")
-	config["ld"] = path.Join(gobin, prefix+"l")
-	return
-}
-
-func getGOBIN() string {
-	if gobin := os.Getenv("GOBIN"); gobin != "" {
-		return gobin
-	}
-	return path.Join(os.Getenv("HOME"), "bin")
-}
-
-func getPrefix() string {
-	switch syscall.ARCH {
-	case "amd64":
-		return "6"
-	case "386":
-		return "8"
-	case "arm":
-		return "5"
-	}
-	return ""
-}
-
-func printVar(name, value string) {
-	fmt.Printf("%s=%s\n", name, value)
-}
 
 func extractImports(fileNode *ast.File) <-chan *ast.ImportSpec {
 	ch := make(chan *ast.ImportSpec)
@@ -150,39 +106,9 @@ func parseArgs() <-chan *ast.File {
 
 func main() {
 	var mode string
-	var configValue string
-
-	flag.StringVar(&mode, "mode", "config", "Change the mode of the helper")
-	flag.StringVar(&configValue, "value", "", "When set, only print a specific configuration value")
+	flag.StringVar(&mode, "mode", "default", "Change the mode of the helper")
 	flag.Parse()
-
 	switch mode {
-	case "config":
-		config := buildConfig()
-		if configValue == "" {
-			for k, v := range config {
-				fmt.Printf("%s=%s\n", k, v)
-			}
-		} else if v, ok := config[configValue]; ok {
-			fmt.Println(v)
-		}
-	case "imports":
-		for fileNode := range parseArgs() {
-			for spec := range extractImports(fileNode) {
-				importPath, _ := strconv.Unquote(string(spec.Path.Value))
-				fmt.Println(importPath)
-			}
-		}
-	case "package":
-		for fileNode := range parseArgs() {
-			fmt.Println(fileNode.Name.Name)
-		}
-	case "tests":
-		for fileNode := range parseArgs() {
-			for decl := range extractTests(fileNode) {
-				fmt.Printf("%s.%s\n", fileNode.Name.Name, decl.Name.Name)
-			}
-		}
 	case "package_imports":
 		for fileNode := range parseArgs() {
 			fmt.Printf("package %s\n", fileNode.Name.Name)
