@@ -7,6 +7,7 @@ TEMPLATE = """package main
 
 %(imports)s
 import "testing"
+import __regexp__ "regexp"
 
 var tests = []testing.Test {
 %(tests)s
@@ -16,8 +17,8 @@ var benchmarks = []testing.Benchmark {
 }
 
 func main() {
-\ttesting.Main(tests)
-\ttesting.RunBenchmarks(benchmarks)
+\ttesting.Main(__regexp__.MatchString, tests)
+\ttesting.RunBenchmarks(__regexp__.MatchString, benchmarks)
 }"""
 
 def GenerateTestMain(target, source, env):
@@ -25,9 +26,9 @@ def GenerateTestMain(target, source, env):
     benchmarks = []
     for s in source:
         for t in goutils.tests(s, env):
-            tests.append('\ttesting.Test{ "%s", %s },' % (t,t))
+            tests.append('\ttesting.Test{"%s", %s},' % (t,t))
         for b in goutils.benchmarks(s, env):
-            benchmarks.append('\ttesting.Benchmark{ "%s", %s },' % (b,b))
+            benchmarks.append('\ttesting.Benchmark{"%s", %s},' % (b,b))
     if len(tests) > 0 or len(benchmarks) > 0:
         imports = 'import "%s"' % env['GOPACKAGE']
     else:
