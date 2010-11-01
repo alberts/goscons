@@ -65,10 +65,10 @@ def generate(env):
     env['CGOCOM'] = CDCOM + '${TARGET.dir} && CGOPKGPATH=$CGOPKGPATH GOOS=$GOOS GOARCH=$GOARCH $CGO -- $CGO_CFLAGS ${SOURCES.file}'
     env['CGOPKGPATH'] = ''
 
-    env['CGO_CFLAGS'] = '-O2'
+    env['CGO_CFLAGS'] = ''
     env['CGO_OS_CFLAGS'] = '${_cgo_os("CFLAGS", GOOS)}'
-    env['CGO_AMD64_CFLAGS'] = '-m64'
-    env['CGO_386_CFLAGS'] = '-m32'
+    env['CGO_AMD64_CFLAGS'] = '-O2 -m64'
+    env['CGO_386_CFLAGS'] = '-O2 -m32'
     env['CGO_ARCH_CFLAGS'] = '${_cgo_arch("CFLAGS", GOARCH)}'
     env['CGO_OSARCH_CFLAGS'] = '${CGO_OS_CFLAGS} ${CGO_ARCH_CFLAGS}'
 
