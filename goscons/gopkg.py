@@ -103,9 +103,6 @@ def gopackage(env, srcdir, basedir=None, *args, **kw):
             a = env.Alias(alias, t, '${SOURCES.abspath} -benchmarks=. -match="Do not run tests" $GOTESTARGS')
             env.AlwaysBuild(a)
             env.AlwaysBuild(env.Alias('bench', a))
-    else:
-        env.AlwaysBuild(env.Alias('test'))
-        env.AlwaysBuild(env.Alias('bench'))
 
     return installed
 

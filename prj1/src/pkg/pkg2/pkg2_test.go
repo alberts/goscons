@@ -10,7 +10,7 @@ func TestPkg2(t *testing.T) {
 	fmt.Printf("pkg2.TestPkg2\n")
 	Foo()
 	if len(os.Getenv("CRASH")) > 0 {
-		os.Exit(1)
+		panic("CRASH")
 	}
 }
 

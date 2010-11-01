@@ -92,5 +92,12 @@ def generate(env):
 
     SCons.Tool.SourceFileScanner.add_scanner('.go', GoScanner)
 
+    env.Alias('goinstall')
+    env.Alias('test')
+    env.Alias('bench')
+
+    gofmt_cmd = "find ${TOP.abspath} -name '*.go' | xargs gofmt -s=true -w=true"
+    env.AlwaysBuild(env.Alias('gofmt', [], gofmt_cmd, TOP=env.Dir('#')))
+
 def exists(env):
     return 1

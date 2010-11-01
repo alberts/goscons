@@ -85,5 +85,5 @@ amd64, go to $GOROOT/src and run:
 You might need to install 32-bit versions of packages like glibc-devel
 for this to work, so try something like:
 
-    yum install glibc-devel.i686
+    yum install libgcc.i686 glibc-devel.i686 libuuid-devel.i686
 
