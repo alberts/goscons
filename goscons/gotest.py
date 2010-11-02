@@ -10,7 +10,7 @@ import "testing"
 import __regexp__ "regexp"
 
 var tests = []testing.Test{%(tests)s}
-var benchmarks = []testing.Benchmark{%(benchmarks)s}
+var benchmarks = []testing.InternalBenchmark{%(benchmarks)s}
 
 func main() {
 \ttesting.Main(__regexp__.MatchString, tests)
@@ -22,9 +22,9 @@ def GenerateTestMain(target, source, env):
     benchmarks = []
     for s in source:
         for t in goutils.tests(s, env):
-            tests.append('\ttesting.Test{"%s", %s},\n' % (t,t))
+            tests.append('\t{"%s", %s},\n' % (t,t))
         for b in goutils.benchmarks(s, env):
-            benchmarks.append('\ttesting.Benchmark{"%s", %s},\n' % (b,b))
+            benchmarks.append('\t{"%s", %s},\n' % (b,b))
     if len(tests) > 0 or len(benchmarks) > 0:
         imports = 'import "%s"' % env['GOPACKAGE']
         if len(tests) > 0: tests.insert(0, '\n')
