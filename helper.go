@@ -106,7 +106,7 @@ func parseArgs() <-chan *ast.File {
 
 func main() {
 	var mode string
-	flag.StringVar(&mode, "mode", "default", "Change the mode of the helper")
+	flag.StringVar(&mode, "mode", "", "package_imports|package_imports_tests")
 	flag.Parse()
 	switch mode {
 	case "package_imports":
@@ -129,7 +129,7 @@ func main() {
 			}
 		}
 	default:
-		fmt.Fprintf(os.Stderr, "Invalid mode: %s\n", mode)
+		flag.Usage()
 		os.Exit(1)
 	}
 }
