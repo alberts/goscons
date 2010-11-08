@@ -9,7 +9,7 @@ TEMPLATE = """package main
 import "testing"
 import __regexp__ "regexp"
 
-var tests = []testing.Test{%(tests)s}
+var tests = []testing.InternalTest{%(tests)s}
 var benchmarks = []testing.InternalBenchmark{%(benchmarks)s}
 
 func main() {
