@@ -94,9 +94,7 @@ func parseArgs() <-chan *ast.File {
 			fileNode, err := parser.ParseFile(fname, nil, 0)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error parsing %s: %v\n", fname, err)
-				if fileNode == nil {
-					continue
-				}
+				os.Exit(1)
 			}
 			ch <- fileNode
 		}
