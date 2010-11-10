@@ -19,14 +19,14 @@ def godep(env, dep, sconscript='SConstruct', *args, **kw):
         # saved packages as artifacts
         if not pkgdir.isdir():
             raise SCons.Errors.UserError, 'Missing dependency: %s' % dep
+        env.AppendUnique(GODEPPKGPATH=pkgdir)
+        env.AppendUnique(GODEPRPATH=pkgdir)
     else:
         depdir = env.Dir(os.path.join('#..',dep))
         pkgdir = env.Dir(os.path.join(str(depdir),'pkg','${GOOS}_${GOARCH}'))
         env.SConscript(depdir.File(sconscript))
     if not depdir.isdir():
         raise SCons.Errors.UserError, 'Missing dependency: %s' % dep
-    env.AppendUnique(GODEPPKGPATH=pkgdir)
-    env.AppendUnique(GODEPRPATH=pkgdir)
 
 # TODO add $GOROOT/bin to PATH automatically?
 def generate(env):
