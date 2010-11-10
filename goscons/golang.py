@@ -8,17 +8,25 @@ def find_package(env, pkg, path):
     pkgfile = env.subst(os.path.join(*pkg.split('/'))+'$GOLIBSUFFIX')
     return env.FindFile(pkgfile, path)
 
-def godep(env, dep, *args, **kw):
+def godep(env, dep, sconscript='SConstruct', *args, **kw):
+    if dep in env['GODEPS']: return
+    env.AppendUnique(GODEPS=dep)
     if 'HUDSON' in env['ENV']:
         lastBuild = env['ENV']['HUDSON']
-        d = env.Dir(os.path.join('#..','..',dep,lastBuild,'archive','pkg','${GOOS}_${GOARCH}'))
+        depdir = env.Dir(os.path.join('#..','..',dep))
+        pkgdir = env.Dir(os.path.join(str(depdir),lastBuild,'archive','pkg','${GOOS}_${GOARCH}'))
+        # We assume that Hudson builds all projects separately and
+        # saved packages as artifacts
+        if not pkgdir.isdir():
+            raise SCons.Errors.UserError, 'Missing dependency: %s' % dep
     else:
-        d = env.Dir(os.path.join('#..',dep,'pkg','${GOOS}_${GOARCH}'))
-    if not d.isdir():
-        raise SCons.Errors.UserError, \
-            'Missing dependency: %s' % dep
-    env.AppendUnique(GODEPPKGPATH=d)
-    env.AppendUnique(GODEPRPATH=d)
+        depdir = env.Dir(os.path.join('#..',dep))
+        pkgdir = env.Dir(os.path.join(str(depdir),'pkg','${GOOS}_${GOARCH}'))
+        env.SConscript(depdir.File(sconscript))
+    if not depdir.isdir():
+        raise SCons.Errors.UserError, 'Missing dependency: %s' % dep
+    env.AppendUnique(GODEPPKGPATH=pkgdir)
+    env.AppendUnique(GODEPRPATH=pkgdir)
 
 # TODO add $GOROOT/bin to PATH automatically?
 def generate(env):
@@ -86,6 +94,7 @@ def generate(env):
 
     env.AddMethod(find_package, 'FindGoPackage')
 
+    env['GODEPS'] = []
     env['GODEPPKGPATH'] = []
     env['GODEPRPATH'] = []
     env.AddMethod(godep, 'GoDep')

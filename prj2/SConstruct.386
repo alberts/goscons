@@ -7,5 +7,5 @@ env = GoEnvironment(GOARCH='386')
 env['CGO_LINKFLAGS'] = '-luuid'
 env.GoPackages('src/pkg')
 env.GoCommands('src/cmd')
-env.GoDep('prj1')
-env.GoDep('prj1')
+env.GoDep('prj1','SConstruct.386')
+env.GoDep('prj1','SConstruct.386')
