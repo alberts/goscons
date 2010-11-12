@@ -105,6 +105,7 @@ def generate(env):
     env.Alias('test')
     env.Alias('bench')
 
+    # TODO GoDep causes this Alias to be defined multiple times
     gofmt_cmd = "find ${TOP.abspath} -name '*.go' | xargs gofmt -s=true -w=true"
     env.AlwaysBuild(env.Alias('gofmt', [], gofmt_cmd, TOP=env.Dir('#')))
 

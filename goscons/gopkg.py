@@ -31,7 +31,6 @@ def gopackage(env, srcdir, basedir=None, *args, **kw):
 
     source = srcdir.glob('*.go')
     source = filter(lambda x: goutils.is_source(x, env), source)
-    if len(source)==0: return []
     cgofiles = filter(lambda x: goutils.is_cgo_input(x, env), source)
     gofiles = list(set(source)-set(cgofiles))
 
@@ -47,7 +46,8 @@ def gopackage(env, srcdir, basedir=None, *args, **kw):
     obj = env.subst('_go_$GOOBJSUFFIX')
     # calculate a prefix for gccgo
     projprefix = os.path.split(fs.Dir('#').abspath)[-1] + '_'
-    objfiles += env.Goc(srcdir.File(obj), gofiles, GOPREFIX=projprefix, *args, **kw)
+    if len(gofiles) > 0:
+        objfiles += env.Goc(srcdir.File(obj), gofiles, GOPREFIX=projprefix, *args, **kw)
 
     if len(cgofiles)>0:
         cflags = '-FVw -I"$GOROOT/src/pkg/runtime" ${_go_ifarch("amd64","-D_64BIT",__env__)}'
@@ -56,9 +56,6 @@ def gopackage(env, srcdir, basedir=None, *args, **kw):
         objfiles += cgo_obj
     else:
         cgo_obj = []
-
-    pkg = srcdir.Dir('_obj').File(env.subst('${GOLIBPREFIX}'+srcdir.name+'${GOLIBSUFFIX}'))
-    pkg = env.Gopack(pkg, objfiles, *args, **kw)
 
     local_pkg_dir = fs.Dir(env['GOPROJPKGPATH'])
     goroot_pkg_dir = fs.Dir(env['GOROOTPKGPATH'])
@@ -82,16 +79,8 @@ def gopackage(env, srcdir, basedir=None, *args, **kw):
     else:
         installed_cgolib = []
 
-    pkgfile = os.path.join(basedir.rel_path(srcdir.dir), env.subst('${GOLIBPREFIX}'+srcdir.name +'${GOLIBSUFFIX}'))
-    local_path = local_pkg_dir.File(pkgfile)
-    installed_pkg = env.InstallAs(local_path, pkg[0], *args, **kw)
-    installed += installed_pkg
-
-    goroot_path = goroot_pkg_dir.File(pkgfile)
-    env.Alias('goinstall', env.InstallAs(goroot_path, pkg[0], *args, **kw))
-
-    pkg = basedir.rel_path(srcdir)
-    test = gotest(env, pkg, srcdir, gofiles, cgo_obj, installed_cgolib)
+    pkg_path = basedir.rel_path(srcdir)
+    test = gotest(env, pkg_path, srcdir, gofiles, cgo_obj, installed_cgolib)
     if test:
         for t in test:
             pkgname_ = basedir.rel_path(srcdir).replace(os.sep, '_')
@@ -103,6 +92,18 @@ def gopackage(env, srcdir, basedir=None, *args, **kw):
             a = env.Alias(alias, t, '${SOURCES.abspath} -benchmarks=. -match="Do not run tests" $GOTESTARGS')
             env.AlwaysBuild(a)
             env.AlwaysBuild(env.Alias('bench', a))
+
+    if len(objfiles) == 0: return installed
+
+    pkgfile = os.path.join(basedir.rel_path(srcdir.dir), env.subst('${GOLIBPREFIX}'+srcdir.name +'${GOLIBSUFFIX}'))
+    local_path = local_pkg_dir.File(pkgfile)
+    pkg = srcdir.Dir('_obj').File(env.subst('${GOLIBPREFIX}'+srcdir.name+'${GOLIBSUFFIX}'))
+    pkg = env.Gopack(pkg, objfiles, *args, **kw)
+    installed_pkg = env.InstallAs(local_path, pkg[0], *args, **kw)
+    installed += installed_pkg
+
+    goroot_path = goroot_pkg_dir.File(pkgfile)
+    env.Alias('goinstall', env.InstallAs(goroot_path, pkg[0], *args, **kw))
 
     return installed
 
@@ -116,7 +117,6 @@ def gopackages(env, basedir, *args, **kw):
         ispkg = False
         for f in files:
             if not f.endswith(env['GOFILESUFFIX']): continue
-            if f.endswith('_test.go'): continue
             if root.name==goutils.package_name(root.File(f), env):
                 ispkg = True
                 break

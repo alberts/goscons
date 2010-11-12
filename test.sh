@@ -46,3 +46,7 @@ scons -C prj3 -f SConstruct --random -j16
 scons -C prj4 -f SConstruct -c
 scons -C prj4 -f SConstruct --random -j16
 scons -C prj4 -f SConstruct test_bar_time
+
+scons -C prj5 -f SConstruct -c
+scons -C prj5 -f SConstruct
+scons -C prj5 -f SConstruct test
