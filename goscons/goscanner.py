@@ -6,12 +6,12 @@ import struct
 import subprocess
 
 # TODO can make this better with FindFile
-def resolve_pkg(pkg, env, path):
+def resolve_pkg(pkg, env, path, node):
     if pkg == 'C': return []
     if pkg == 'unsafe': return []
     pkgpath = env.FindGoPackage(pkg, path)
     if pkgpath is None:
-        raise SCons.Errors.UserError, 'Package "%s" not found' % pkg
+        raise SCons.Errors.UserError, 'Package "%s" not found while scanning %s' % (pkg, node)
     return [pkgpath]
 
 def goPkgScannerFunc(node, env, path, arg=None):
@@ -23,7 +23,7 @@ def goPkgScannerFunc(node, env, path, arg=None):
         if line.startswith('import '):
             if line.find('"') >= 0:
                 pkg = line.split('"')[-2]
-                deps += resolve_pkg(pkg, env, path)
+                deps += resolve_pkg(pkg, env, path, node)
             elif line.endswith(';'):
                 for importspec in line.split('..'):
                     importspec = importspec.split(' ')
@@ -51,7 +51,7 @@ def goScannerFunc(node, env, path, arg=None):
         deps = []
         imports = goutils.imports(node, env)
         for pkg in imports:
-            deps += resolve_pkg(pkg, env, path)
+            deps += resolve_pkg(pkg, env, path, node)
     else:
         deps = []
     for c in node.all_children():
