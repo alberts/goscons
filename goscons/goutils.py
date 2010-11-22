@@ -21,7 +21,7 @@ def createObjBuilders(env):
     return static_obj
 
 def helper_impl(source, env):
-    if env['GOSCONSHELPER'] is None:
+    if env['GOSCONSHELPER'] is None or not source.exists() or source.getsize()==0:
         return False, '', [], [], []
     cgo = False
     go_package = ''

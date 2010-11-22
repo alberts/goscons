@@ -110,10 +110,15 @@ def gopackage(env, srcdir, basedir=None, *args, **kw):
 def gopackages(env, basedir, *args, **kw):
     fs = SCons.Node.FS.get_default_fs()
     pkgdirs = []
-    for root, dirs, files in os.walk(basedir):
+    for root, dirs, files in os.walk(basedir, True):
+        alldirs = set(dirs)
+        skipdirs = set()
+        for d in dirs:
+            if d=='_obj': skipdirs.add(d)
+            elif d=='_test': skipdirs.add(d)
+            elif d.lower()=='testdata': skipdirs.add(d)
+        dirs[:] = list(alldirs-skipdirs)
         root = fs.Dir(root)
-        # don't scan test data, as it might contain Go code
-        if root.name.lower()=='testdata': continue
         ispkg = False
         for f in files:
             if not f.endswith(env['GOFILESUFFIX']): continue
