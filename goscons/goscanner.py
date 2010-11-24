@@ -5,12 +5,11 @@ import os.path
 import struct
 import subprocess
 
-# TODO can make this better with FindFile
 def resolve_pkg(pkg, env, path, node):
     if pkg == 'C': return []
     if pkg == 'unsafe': return []
     pkgpath = env.FindGoPackage(pkg, path)
-    if pkgpath is None:
+    if pkgpath is None and not goutils.scons_clean:
         raise SCons.Errors.UserError, 'Package "%s" not found while scanning %s' % (pkg, node)
     return [pkgpath]
 

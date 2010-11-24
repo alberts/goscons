@@ -24,7 +24,9 @@ def godep(env, dep, sconscript='SConstruct', *args, **kw):
     else:
         depdir = env.Dir(os.path.join('#..',dep))
         pkgdir = env.Dir(os.path.join(str(depdir),'pkg','${GOOS}_${GOARCH}'))
-        env.SConscript(depdir.File(sconscript))
+        sconscriptfile = depdir.File(sconscript)
+        if sconscriptfile.exists():
+            env.SConscript(sconscriptfile)
     if not depdir.isdir():
         raise SCons.Errors.UserError, 'Missing dependency: %s' % dep
 

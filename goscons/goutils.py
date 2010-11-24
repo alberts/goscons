@@ -1,6 +1,11 @@
 from subprocess import Popen, PIPE
 import SCons.Errors
+import SCons.SConf
 import os.path
+
+# TODO might not work with older versions of SCons
+# use SCons.Script.Main.options.clean then
+scons_clean = SCons.SConf.build_type=='clean'
 
 cmp_abspath = lambda x, y: cmp(x.abspath, y.abspath)
 
@@ -38,6 +43,7 @@ def helper_impl(source, env):
     p = Popen([helper, '-mode=%s' % mode, source.abspath], stdout=PIPE, stderr=PIPE)
     out, err = p.communicate()
     if p.returncode != 0:
+        if scons_clean: return False, '', [], [], []
         raise SCons.Errors.UserError, err.strip()
     lines = out.strip().split('\n')
     line = lines.pop(0)
