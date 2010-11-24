@@ -9,7 +9,8 @@ def resolve_pkg(pkg, env, path, node):
     if pkg == 'C': return []
     if pkg == 'unsafe': return []
     pkgpath = env.FindGoPackage(pkg, path)
-    if pkgpath is None and not goutils.scons_clean:
+    if pkgpath is None:
+        if goutils.scons_clean: return []
         raise SCons.Errors.UserError, 'Package "%s" not found while scanning %s' % (pkg, node)
     return [pkgpath]
 
