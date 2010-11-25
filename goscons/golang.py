@@ -8,7 +8,7 @@ def find_package(env, pkg, path):
     pkgfile = env.subst(os.path.join(*pkg.split('/'))+'$GOLIBSUFFIX')
     return env.FindFile(pkgfile, path)
 
-def godep(env, dep, sconscript='SConstruct', *args, **kw):
+def godep(env, dep, sconscript='SConstruct', build=True, *args, **kw):
     if dep in env['GODEPS']: return
     env.AppendUnique(GODEPS=dep)
     if 'HUDSON' in env['ENV']:
@@ -24,9 +24,12 @@ def godep(env, dep, sconscript='SConstruct', *args, **kw):
     else:
         depdir = env.Dir(os.path.join('#..',dep))
         pkgdir = env.Dir(os.path.join(str(depdir),'pkg','${GOOS}_${GOARCH}'))
-        sconscriptfile = depdir.File(sconscript)
-        if sconscriptfile.exists():
+        if build:
+            sconscriptfile = depdir.File(sconscript)
             env.SConscript(sconscriptfile)
+        else:
+            env.AppendUnique(GODEPPKGPATH=pkgdir)
+            env.AppendUnique(GODEPRPATH=pkgdir)
     if not depdir.isdir():
         raise SCons.Errors.UserError, 'Missing dependency: %s' % dep
 

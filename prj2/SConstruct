@@ -8,5 +8,5 @@ env['CGO_LINKFLAGS'] = '-luuid'
 env.GoPackages('src/pkg')
 env.GoCommands('src/cmd')
 # call GoDep twice for prj1
-env.GoDep('prj1')
-env.GoDep('prj1')
+env.GoDep('prj1', sconscript='SConstruct', build=True)
+env.GoDep('prj1', sconscript='SConstruct', build=True)
