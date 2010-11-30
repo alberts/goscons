@@ -15,6 +15,7 @@ def godep(env, dep, sconscript='SConstruct', build=True, *args, **kw):
         lastBuild = env['ENV']['HUDSON']
         depdir = env.Dir(os.path.join('#..','..',dep))
         pkgdir = env.Dir(os.path.join(str(depdir),lastBuild,'archive','pkg','${GOOS}_${GOARCH}'))
+        bindir = env.Dir(os.path.join(str(depdir),lastBuild,'archive','bin','${GOOS}_${GOARCH}'))
         # We assume that Hudson builds all projects separately and
         # saved packages as artifacts
         if not pkgdir.isdir():
@@ -24,17 +25,25 @@ def godep(env, dep, sconscript='SConstruct', build=True, *args, **kw):
     else:
         depdir = env.Dir(os.path.join('#..',dep))
         pkgdir = env.Dir(os.path.join(str(depdir),'pkg','${GOOS}_${GOARCH}'))
+        bindir = env.Dir(os.path.join(str(depdir),'bin','${GOOS}_${GOARCH}'))
         if build:
             sconscriptfile = depdir.File(sconscript)
-            env.SConscript(sconscriptfile)
+            env.SConscript(sconscriptfile, exports={'GODEP_BUILD' : True})
         else:
             env.AppendUnique(GODEPPKGPATH=pkgdir)
             env.AppendUnique(GODEPRPATH=pkgdir)
     if not depdir.isdir():
         raise SCons.Errors.UserError, 'Missing dependency: %s' % dep
+    return [pkgdir, bindir]
 
 # TODO add $GOROOT/bin to PATH automatically?
 def generate(env):
+    try:
+        env.Import('GODEP_BUILD')
+        env['GODEP_BUILD'] = True
+    except SCons.Errors.UserError:
+        env['GODEP_BUILD'] = False
+
     if 'GOROOT' not in env:
         if 'GOROOT' not in os.environ:
             raise SCons.Errors.UserError, 'Set GOROOT in your environment'
@@ -110,9 +119,9 @@ def generate(env):
     env.Alias('test')
     env.Alias('bench')
 
-    # TODO GoDep causes this Alias to be defined multiple times
-    gofmt_cmd = "find ${TOP.abspath} -name '*.go' | xargs gofmt -s=true -w=true"
-    env.AlwaysBuild(env.Alias('gofmt', [], gofmt_cmd, TOP=env.Dir('#')))
+    if not env['GODEP_BUILD']:
+        gofmt_cmd = "find ${TOP.abspath} -name '*.go' | xargs gofmt -s=true -w=true"
+        env.AlwaysBuild(env.Alias('gofmt', [], gofmt_cmd, TOP=env.Dir('#')))
 
 def exists(env):
     return 1

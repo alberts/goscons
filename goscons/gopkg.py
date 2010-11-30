@@ -8,7 +8,7 @@ import os.path
 def gotest(env, pkg, srcdir, gofiles, cgo_obj, cgolib, *args, **kw):
     pkgname = pkg.replace(os.sep, '/')
     source = unique_files(srcdir.glob('*_test.go'))
-    if len(source)==0: return
+    if len(source)==0: return []
     obj = env.subst('_gotest_$GOOBJSUFFIX')
     objfiles = env.Goc(srcdir.File(obj), source + gofiles, *args, **kw)
     testpkgdir = srcdir.Dir('_test').Dir(pkg).dir
@@ -81,17 +81,17 @@ def gopackage(env, srcdir, basedir=None, *args, **kw):
 
     pkg_path = basedir.rel_path(srcdir)
     test = gotest(env, pkg_path, srcdir, gofiles, cgo_obj, installed_cgolib)
-    if test:
-        for t in test:
-            pkgname_ = basedir.rel_path(srcdir).replace(os.sep, '_')
-            alias = 'test_%s' % pkgname_
-            a = env.Alias(alias, t, '${SOURCES.abspath} $GOTESTARGS')
-            env.AlwaysBuild(a)
-            env.AlwaysBuild(env.Alias('test', a))
-            alias = 'bench_%s' % pkgname_
-            a = env.Alias(alias, t, '${SOURCES.abspath} -benchmarks=. -match="Do not run tests" $GOTESTARGS')
-            env.AlwaysBuild(a)
-            env.AlwaysBuild(env.Alias('bench', a))
+    if env['GODEP_BUILD']: test = []
+    for t in test:
+        pkgname_ = basedir.rel_path(srcdir).replace(os.sep, '_')
+        alias = 'test_%s' % pkgname_
+        a = env.Alias(alias, t, '${SOURCES.abspath} $GOTESTARGS')
+        env.AlwaysBuild(a)
+        env.AlwaysBuild(env.Alias('test', a))
+        alias = 'bench_%s' % pkgname_
+        a = env.Alias(alias, t, '${SOURCES.abspath} -benchmarks=. -match="Do not run tests" $GOTESTARGS')
+        env.AlwaysBuild(a)
+        env.AlwaysBuild(env.Alias('bench', a))
 
     if len(objfiles) == 0: return installed
 
