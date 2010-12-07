@@ -91,7 +91,7 @@ func parseArgs() <-chan *ast.File {
 	go func() {
 		defer close(ch)
 		for _, fname := range flag.Args() {
-			fileNode, err := parser.ParseFile(fname, nil, 0)
+			fileNode, err := parser.ParseFile(token.NewFileSet(), fname, nil, 0)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error parsing %s: %v\n", fname, err)
 				os.Exit(1)
