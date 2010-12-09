@@ -6,5 +6,6 @@ from goscons import GoEnvironment
 env = GoEnvironment()
 if env['GOOS']=='linux':
     env['CGO_LINKFLAGS'] = '-luuid'
+    env['GORPATH'] = '/tmp/does/not/exist'
 env.GoPackages('src/pkg')
 env.GoCommands('src/cmd')

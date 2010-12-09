@@ -5,7 +5,7 @@ import glob
 import goutils
 import os.path
 
-def gotest(env, pkg, srcdir, gofiles, cgo_obj, cgolib, *args, **kw):
+def gotest(env, pkg, srcdir, gofiles, cgo_obj, *args, **kw):
     pkgname = pkg.replace(os.sep, '/')
     source = unique_files(srcdir.glob('*_test.go'))
     if len(source)==0: return []
@@ -17,7 +17,6 @@ def gotest(env, pkg, srcdir, gofiles, cgo_obj, cgolib, *args, **kw):
     gopkgpath = [srcdir.Dir('_test'), '$GOPKGPATH']
     testmain_obj = env.Goc(env.GoTestMain(source, GOPACKAGE=pkgname), GOPKGPATH=gopkgpath)
     bin = env.Golink(srcdir.File(env.subst('$GOTESTBIN')), testmain_obj, GOPKGPATH=gopkgpath)
-    env.Depends(bin, cgolib)
     return bin
 
 # TODO need to propogate args, kw into env
@@ -52,35 +51,21 @@ def gopackage(env, srcdir, basedir=None, *args, **kw):
     if len(cgofiles)>0:
         cflags = '-FVw -I"$GOROOT/src/pkg/runtime"'
         cgo_defun = filter(lambda x: x.name=='_cgo_defun.c', cgo_out)
-        cgo_obj = env.GoObject(cgo_defun, GOCFLAGS=cflags, *args, **kw)
+        cgo_defun_obj = env.GoObject(cgo_defun, GOCFLAGS=cflags, *args, **kw)
+        cgo2 = filter(lambda x: x.name.endswith('.cgo2.c'), cgo_out)
+        cgo_shobj = env.SharedObject(cgo2, CFLAGS='${CGO_OSARCH_CFLAGS} ${CGO_CFLAGS}', *args, **kw)
+        cgo_lib = env.SharedLibrary(target=srcdir.File(env.subst('_cgo1_$SHLIBSUFFIX')),
+                                    source=cgo_shobj,
+                                    LINKFLAGS='${CGO_OSARCH_LINKFLAGS} ${CGO_LINKFLAGS} -pthread -lm')
+        cgo_import = env.Command(srcdir.File('_cgo_import.c'), cgo_lib, '$CGO -dynimport $SOURCES > $TARGET')
+        cgo_import_obj = env.GoObject(cgo_import, GOCFLAGS='-FVw', *args, **kw)
+        cgo_obj = cgo_defun_obj + cgo_import_obj + cgo_shobj
         objfiles += cgo_obj
     else:
         cgo_obj = []
 
-    local_pkg_dir = fs.Dir(env['GOPROJPKGPATH'])
-    goroot_pkg_dir = fs.Dir(env['GOROOTPKGPATH'])
-
-    installed = []
-    if len(cgofiles)>0:
-        cgo2 = filter(lambda x: x.name.endswith('.cgo2.c'), cgo_out)
-        cgolib = env.SharedLibrary(target=srcdir.File(env.subst('_cgo_$SHLIBSUFFIX')),
-                                   source=cgo2,
-                                   CFLAGS='${CGO_OSARCH_CFLAGS} ${CGO_CFLAGS}',
-                                   LINKFLAGS='${CGO_OSARCH_LINKFLAGS} ${CGO_LINKFLAGS} -pthread -lm',
-                                   *args, **kw)
-        cgofile = env.subst('cgo_%s$SHLIBSUFFIX' % '_'.join(pkgparts))
-
-        local_path = local_pkg_dir.File(cgofile)
-        installed_cgolib = env.InstallAs(local_path, cgolib, *args, **kw)
-        installed += installed_cgolib
-
-        goroot_path = goroot_pkg_dir.File(cgofile)
-        env.Alias('goinstall', env.InstallAs(goroot_path, cgolib, *args, **kw))
-    else:
-        installed_cgolib = []
-
     pkg_path = basedir.rel_path(srcdir)
-    test = gotest(env, pkg_path, srcdir, gofiles, cgo_obj, installed_cgolib)
+    test = gotest(env, pkg_path, srcdir, gofiles, cgo_obj)
     if env['GODEP_BUILD']: test = []
     for t in test:
         pkgname_ = basedir.rel_path(srcdir).replace(os.sep, '_')
@@ -93,19 +78,18 @@ def gopackage(env, srcdir, basedir=None, *args, **kw):
         env.AlwaysBuild(a)
         env.AlwaysBuild(env.Alias('bench', a))
 
-    if len(objfiles) == 0: return installed
+    if len(objfiles) == 0: return []
 
+    local_pkg_dir = fs.Dir(env['GOPROJPKGPATH'])
+    goroot_pkg_dir = fs.Dir(env['GOROOTPKGPATH'])
     pkgfile = os.path.join(basedir.rel_path(srcdir.dir), env.subst('${GOLIBPREFIX}'+srcdir.name +'${GOLIBSUFFIX}'))
     local_path = local_pkg_dir.File(pkgfile)
     pkg = srcdir.Dir('_obj').File(env.subst('${GOLIBPREFIX}'+srcdir.name+'${GOLIBSUFFIX}'))
     pkg = env.Gopack(pkg, objfiles, *args, **kw)
     installed_pkg = env.InstallAs(local_path, pkg[0], *args, **kw)
-    installed += installed_pkg
-
     goroot_path = goroot_pkg_dir.File(pkgfile)
     env.Alias('goinstall', env.InstallAs(goroot_path, pkg[0], *args, **kw))
-
-    return installed
+    return installed_pkg
 
 def gopackages(env, basedir, *args, **kw):
     fs = SCons.Node.FS.get_default_fs()

@@ -11,8 +11,7 @@ def emit(target, source, env):
     tlist = [
         srcdir.File('_cgo_defun.c'),
         srcdir.File('_cgo_gotypes.go'),
-        # latest cgo doesn't seem to make this file
-        #srcdir.File('_cgo_.o')
+        srcdir.File('_cgo_.o')
         ]
     for s in source:
         base = SCons.Util.splitext(s.name)[0]
@@ -61,7 +60,6 @@ def generate(env):
     # TODO find a way to set the environment on Windows
     # TODO environment stuff before $CGO prevents SCons from making
     # making cgo output depend on the cgo binary
-    # GOOS must be set so that cgo includes @rpath on darwin
     env['CGOCOM'] = CDCOM + '${TARGET.dir} && CGOPKGPATH=$CGOPKGPATH GOOS=$GOOS GOARCH=$GOARCH $CGO -- $CGO_CFLAGS ${SOURCES.file}'
     env['CGOPKGPATH'] = ''
 

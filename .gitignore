@@ -12,6 +12,7 @@ _cgo_gotypes.go
 6.out
 8.out
 _testmain.go
+_cgo_import.c
 *.a
 *~
 goscons-helper
