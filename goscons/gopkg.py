@@ -19,7 +19,6 @@ def gotest(env, pkg, srcdir, gofiles, cgo_obj, *args, **kw):
     bin = env.Golink(srcdir.File(env.subst('$GOTESTBIN')), testmain_obj, GOPKGPATH=gopkgpath)
     return bin
 
-# TODO need to propogate args, kw into env
 def gopackage(env, srcdir, basedir=None, *args, **kw):
     fs = SCons.Node.FS.get_default_fs()
     srcdir = fs.Dir(srcdir)
@@ -39,14 +38,16 @@ def gopackage(env, srcdir, basedir=None, *args, **kw):
         cgo_out = env.Cgo(cgofiles, CGOPKGPATH=os.sep.join(pkgparts[:-1]), *args, **kw)
         gofiles += filter(lambda x: x.name.endswith('.go'), cgo_out)
 
-    gofiles = unique_files(gofiles)
+    pkg_path = basedir.rel_path(srcdir)
+    pkgname_ = pkg_path.replace(os.sep, '_')
 
+    gofiles = unique_files(gofiles)
     objfiles = []
     obj = env.subst('_go_$GOOBJSUFFIX')
-    # calculate a prefix for gccgo
-    projprefix = os.path.split(fs.Dir('#').abspath)[-1] + '_'
     if len(gofiles) > 0:
-        objfiles += env.Goc(srcdir.File(obj), gofiles, GOPREFIX=projprefix, *args, **kw)
+        projprefix = os.path.split(fs.Dir('#').abspath)[-1]
+        fgoprefix = '-fgo-prefix=' + projprefix + '_' + pkgname_
+        objfiles += env.Goc(srcdir.File(obj), gofiles, FGOPREFIX=fgoprefix, *args, **kw)
 
     if len(cgofiles)>0:
         cflags = '-FVw -I"$GOROOT/src/pkg/runtime"'
@@ -64,11 +65,9 @@ def gopackage(env, srcdir, basedir=None, *args, **kw):
     else:
         cgo_obj = []
 
-    pkg_path = basedir.rel_path(srcdir)
     test = gotest(env, pkg_path, srcdir, gofiles, cgo_obj)
     if env['GODEP_BUILD']: test = []
     for t in test:
-        pkgname_ = basedir.rel_path(srcdir).replace(os.sep, '_')
         alias = 'test_%s' % pkgname_
         a = env.Alias(alias, t, '${SOURCES.abspath} $GOTESTARGS')
         env.AlwaysBuild(a)
@@ -91,10 +90,11 @@ def gopackage(env, srcdir, basedir=None, *args, **kw):
     env.Alias('goinstall', env.InstallAs(goroot_path, pkg[0], *args, **kw))
     return installed_pkg
 
-def gopackages(env, basedir, *args, **kw):
+def gopackages(env, topdir, basedir=None, *args, **kw):
+    if not basedir: basedir = topdir
     fs = SCons.Node.FS.get_default_fs()
     pkgdirs = []
-    for root, dirs, files in os.walk(basedir, True):
+    for root, dirs, files in os.walk(topdir, True):
         alldirs = set(dirs)
         skipdirs = set()
         for d in dirs:

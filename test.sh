@@ -1,8 +1,10 @@
 #!/bin/bash
 set -xe
 
-rm -rf prj[1234]/bin
-rm -rf prj[1234]/pkg
+rm -rf prj[12345]/bin
+rm -rf prj[12345]/pkg
+
+scons
 
 scons -C prj1 -f SConstruct -c
 scons -C prj1 -f SConstruct --random -j16

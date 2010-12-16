@@ -3,7 +3,6 @@ import SCons.Node.FS
 import goutils
 import os.path
 
-# TODO need to propogate args, kw into env
 def gocommand(env, srcdir, *args, **kw):
     fs = SCons.Node.FS.get_default_fs()
     srcdir = fs.Dir(srcdir)

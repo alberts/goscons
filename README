@@ -29,7 +29,7 @@ To get started, do the following:
 6. Set PYTHONPATH in your environment to point to the top-level
 goscons directory.
 
-7. Look in test.sh and the prj[1234] directories for some examples.
+7. Look in test.sh and the prj[12345] directories for some examples.
 
 If PYTHONPATH is set, the following SConstruct should work to build a
 simple Go project:

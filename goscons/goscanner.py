@@ -11,6 +11,8 @@ def resolve_pkg(pkg, env, path, node):
     pkgpath = env.FindGoPackage(pkg, path)
     if pkgpath is None:
         if goutils.scons_clean: return []
+        # TODO workaround until we have a proper scanner
+        if 'GCCGOPREFIX' in env: return []
         raise SCons.Errors.UserError, 'Package "%s" not found while scanning %s' % (pkg, node)
     return [pkgpath]
 
