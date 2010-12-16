@@ -122,6 +122,17 @@ def generate(env):
     if not env['GODEP_BUILD']:
         gofmt_cmd = "find ${TOP.abspath} -name '*.go' | xargs gofmt -s=true -w=true"
         env.AlwaysBuild(env.Alias('gofmt', [], gofmt_cmd, TOP=env.Dir('#')))
+        nuke_cmds = [
+            "find ${TOP.abspath} -name '*.[568aovq]' | xargs rm -f",
+            "find ${TOP.abspath} -name '_testmain.go' | xargs rm -f",
+            "find ${TOP.abspath} -name '_obj' -type d | xargs rm -rf",
+            "find ${TOP.abspath} -name '_test' -type d | xargs rm -rf",
+            "find ${TOP.abspath} -name '_cgo_*.*' | xargs rm -f",
+            "find ${TOP.abspath} -name '*.cgo[12].*' | xargs rm -f",
+            "rm -rf ${TOP.abspath}/bin",
+            "rm -rf ${TOP.abspath}/pkg"
+            ]
+        env.AlwaysBuild(env.Alias('nuke', [], nuke_cmds, TOP=env.Dir('#')))
 
 def exists(env):
     return 1
