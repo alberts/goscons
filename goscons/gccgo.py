@@ -28,6 +28,7 @@ def generate(env):
     # TODO pkgpath depends on arch
     env['GOPKGPATH'] = ['$GOPROJPKGPATH', '$GODEPPKGPATH', '$GCCGOPREFIX/lib64']
     env.AddMethod(find_package, 'FindGoPackage')
+    env['GOTESTBIN'] = 'a.out'
 
 def exists(env):
     return 1
