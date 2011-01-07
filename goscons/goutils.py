@@ -33,7 +33,10 @@ def helper_impl(source, env):
     go_imports = set()
     go_tests = []
     go_benchmarks = []
-    helper = env.subst(os.path.join('$GOROOT', 'bin', '${GOSCONSHELPER}${PROGSUFFIX}'))
+    if 'GOBIN' in env['ENV']:
+        helper = os.path.join(env['ENV']['GOBIN'], env.subst('${GOSCONSHELPER}${PROGSUFFIX}'))
+    else:
+        helper = env.subst(os.path.join('$GOROOT', 'bin', '${GOSCONSHELPER}${PROGSUFFIX}'))
     if not os.path.isfile(helper):
         raise SCons.Errors.UserError, '%s is missing' % helper
     if source.path.endswith('_test.go'):
