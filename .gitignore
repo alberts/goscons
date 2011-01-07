@@ -1,8 +1,7 @@
 *.6
 *.8
 *.os
-_cgo_defun.c
-_cgo_gotypes.go
+_cgo_*.*
 *.cgo1.go
 *.cgo2.c
 .sconsign*
