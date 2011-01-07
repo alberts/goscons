@@ -47,6 +47,8 @@ def goScannerFunc(node, env, path, arg=None):
     except AttributeError:
         pass
     if not node.exists(): return []
+    if not 'GOLIBSUFFIX' in env:
+        raise SCons.Errors.UserError, 'GOLIBSUFFIX undefined. Check your GOROOT and PATH.'
     if node.name.endswith(env.subst('$GOLIBSUFFIX')):
         deps = goPkgScannerFunc(node, env, path, arg)
     elif node.name.endswith(env.subst('$GOFILESUFFIX')):
