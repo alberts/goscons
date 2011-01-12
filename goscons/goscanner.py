@@ -18,27 +18,20 @@ def resolve_pkg(pkg, env, path, node):
 
 def goPkgScannerFunc(node, env, path, arg=None):
     if not node.exists(): return []
+    fp = open(node.abspath)
+    magic = fp.readline().strip()
+    if magic != '!<arch>': return []
+    start = False
     deps = []
-    # TODO use gopack p filename __.PKGDEF
     for line in open(node.abspath):
         line = line.strip()
-        if line.startswith('import '):
-            if line.find('"') >= 0:
-                pkg = line.split('"')[-2]
-                deps += resolve_pkg(pkg, env, path, node)
-            elif line.endswith(';'):
-                for importspec in line.split('..'):
-                    importspec = importspec.split(' ')
-                    if len(importspec)==3:
-                        pkg = importspec[1]
-                    elif len(importspec)==4:
-                        pkg = importspec[2]
-                    else:
-                        continue
-                break
-            else:
-                raise SCons.Errors.InternalError, \
-                    'Unsupported import spec: "%s"' % line
+        if line=='$$':
+            if start: break
+            start = True
+        if not start: continue
+        if line.startswith('import ') and line.find('"') >= 0:
+            pkg = line.split('"')[-2]
+            deps += resolve_pkg(pkg, env, path, node)
     return deps
 
 def goScannerFunc(node, env, path, arg=None):
