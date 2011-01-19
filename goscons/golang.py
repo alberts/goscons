@@ -134,5 +134,7 @@ def generate(env):
             ]
         env.AlwaysBuild(env.Alias('nuke', [], nuke_cmds, TOP=env.Dir('#')))
 
+    env['GOTESTRUNNER'] = ''
+
 def exists(env):
     return 1

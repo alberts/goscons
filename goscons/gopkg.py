@@ -69,11 +69,11 @@ def gopackage(env, srcdir, basedir=None, *args, **kw):
     if env['GODEP_BUILD']: test = []
     for t in test:
         alias = 'test_%s' % pkgname_
-        a = env.Alias(alias, t, '${SOURCES.abspath} $GOTESTARGS')
+        a = env.Alias(alias, t, '$GOTESTRUNNER ${SOURCES.abspath} $GOTESTARGS')
         env.AlwaysBuild(a)
         env.AlwaysBuild(env.Alias('test', a))
         alias = 'bench_%s' % pkgname_
-        a = env.Alias(alias, t, '${SOURCES.abspath} -benchmarks=. -match="Do not run tests" $GOTESTARGS')
+        a = env.Alias(alias, t, '$GOTESTRUNNER ${SOURCES.abspath} -benchmarks=. -match="Do not run tests" $GOTESTARGS')
         env.AlwaysBuild(a)
         env.AlwaysBuild(env.Alias('bench', a))
 
