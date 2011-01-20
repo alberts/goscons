@@ -57,7 +57,8 @@ def gopackage(env, srcdir, basedir=None, *args, **kw):
         cgo_shobj = env.SharedObject(cgo2, CFLAGS='${CGO_OSARCH_CFLAGS} ${CGO_CFLAGS}', *args, **kw)
         cgo_lib = env.SharedLibrary(target=srcdir.File(env.subst('_cgo1_$SHLIBSUFFIX')),
                                     source=cgo_shobj,
-                                    LINKFLAGS='${CGO_OSARCH_LINKFLAGS} ${CGO_LINKFLAGS} -pthread -lm')
+                                    LINKFLAGS='${CGO_OSARCH_LINKFLAGS} ${CGO_LINKFLAGS} -pthread -lm',
+                                    *args, **kw)
         cgo_import = env.Command(srcdir.File('_cgo_import.c'), cgo_lib, '$CGO -dynimport $SOURCES > $TARGET')
         cgo_import_obj = env.GoObject(cgo_import, GOCFLAGS='-FVw', *args, **kw)
         cgo_obj = cgo_defun_obj + cgo_import_obj + cgo_shobj
