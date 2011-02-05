@@ -50,24 +50,6 @@ automatic construction of the link commands.
 http://groups.google.com/group/golang-nuts/browse_thread/thread/0ef96b1e6bbb1c60
 
 
-GoDep and Hudson
-================
-
-By default, GoDep assumes that project directories are all located in
-the same directory. This is not the case when one uses Hudson, where
-projects are located at
-
-    /var/lib/hudson/jobs/PROJECT/workspace
-
-To allow GoDep to find projects when building under Hudson, set an
-environment variable HUDSON to either "lastSuccessful" or
-"lastStable". This can be done under
-
-    Manage Hudson | Configure System
-
-in the Hudson web interface.
-
-
 Bugs
 ====
 

@@ -11,27 +11,15 @@ def find_package(env, pkg, path):
 def godep(env, dep, sconscript='SConstruct', build=True, *args, **kw):
     if dep in env['GODEPS']: return
     env.AppendUnique(GODEPS=dep)
-    if 'HUDSON' in env['ENV']:
-        lastBuild = env['ENV']['HUDSON']
-        depdir = env.Dir(os.path.join('#..','..',dep))
-        pkgdir = env.Dir(os.path.join(str(depdir),lastBuild,'archive','pkg','${GOOS}_${GOARCH}'))
-        bindir = env.Dir(os.path.join(str(depdir),lastBuild,'archive','bin','${GOOS}_${GOARCH}'))
-        # We assume that Hudson builds all projects separately and
-        # saved packages as artifacts
-        if not pkgdir.isdir():
-            raise SCons.Errors.UserError, 'Missing dependency: %s' % dep
+    depdir = env.Dir(os.path.join('#..',dep))
+    pkgdir = env.Dir(os.path.join(str(depdir),'pkg','${GOOS}_${GOARCH}'))
+    bindir = env.Dir(os.path.join(str(depdir),'bin','${GOOS}_${GOARCH}'))
+    if build:
+        sconscriptfile = depdir.File(sconscript)
+        env.SConscript(sconscriptfile, exports={'GODEP_BUILD' : True})
+    else:
         env.AppendUnique(GODEPPKGPATH=pkgdir)
         env.AppendUnique(GODEPRPATH=pkgdir)
-    else:
-        depdir = env.Dir(os.path.join('#..',dep))
-        pkgdir = env.Dir(os.path.join(str(depdir),'pkg','${GOOS}_${GOARCH}'))
-        bindir = env.Dir(os.path.join(str(depdir),'bin','${GOOS}_${GOARCH}'))
-        if build:
-            sconscriptfile = depdir.File(sconscript)
-            env.SConscript(sconscriptfile, exports={'GODEP_BUILD' : True})
-        else:
-            env.AppendUnique(GODEPPKGPATH=pkgdir)
-            env.AppendUnique(GODEPRPATH=pkgdir)
     if not depdir.isdir():
         raise SCons.Errors.UserError, 'Missing dependency: %s' % dep
     return [pkgdir, bindir]
