@@ -66,6 +66,7 @@ def gopackage(env, srcdir, basedir=None, *args, **kw):
     else:
         cgo_obj = []
 
+    cobjfiles = []
     if len(cgo_obj)>0:
         # compile any native code into object files
         cfiles = []
@@ -75,9 +76,10 @@ def gopackage(env, srcdir, basedir=None, *args, **kw):
         cgo_output = set(srcdir.glob('_cgo_*') + srcdir.glob('*.cgo*'))
         cfiles -= cgo_output
         for cfile in cfiles:
-            cgo_obj += env.Object(cfile, *args, **kw)
+            cobjfiles += env.Object(cfile, *args, **kw)
+    objfiles += cobjfiles
 
-    test = gotest(env, pkg_path, srcdir, gofiles, cgo_obj)
+    test = gotest(env, pkg_path, srcdir, gofiles, cgo_obj + cobjfiles)
     if env['GODEP_BUILD']: test = []
     for t in test:
         alias = 'test_%s' % pkgname_
