@@ -66,6 +66,17 @@ def gopackage(env, srcdir, basedir=None, *args, **kw):
     else:
         cgo_obj = []
 
+    if len(cgo_obj)>0:
+        # compile any native code into object files
+        cfiles = []
+        for ext in 'c','cc','cpp':
+            cfiles += srcdir.glob('*.' + ext)
+        cfiles = set(cfiles)
+        cgo_output = set(srcdir.glob('_cgo_*') + srcdir.glob('*.cgo*'))
+        cfiles -= cgo_output
+        for cfile in cfiles:
+            cgo_obj += env.Object(cfile, *args, **kw)
+
     test = gotest(env, pkg_path, srcdir, gofiles, cgo_obj)
     if env['GODEP_BUILD']: test = []
     for t in test:
