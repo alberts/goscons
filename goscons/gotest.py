@@ -53,7 +53,7 @@ GoTestMainBuilder = SCons.Builder.Builder(action='$GOTESTMAINCOM',
 def generate(env):
     env['BUILDERS']['GoTestMain'] = GoTestMainBuilder
     env['GOTESTMAINCOM'] = GoTestMainAction
-    env['GOTESTARGS'] = SCons.Util.CLVar('-v=true')
+    env['GOTESTARGS'] = SCons.Util.CLVar('-test.v=true')
     env['GOPACKAGE'] = None
 
 def exists(env):

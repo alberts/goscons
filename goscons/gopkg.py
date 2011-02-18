@@ -87,7 +87,7 @@ def gopackage(env, srcdir, basedir=None, *args, **kw):
         env.AlwaysBuild(a)
         env.AlwaysBuild(env.Alias('test', a))
         alias = 'bench_%s' % pkgname_
-        a = env.Alias(alias, t, '$GOTESTRUNNER ${SOURCES.abspath} -benchmarks=. -match="Do not run tests" $GOTESTARGS')
+        a = env.Alias(alias, t, '$GOTESTRUNNER ${SOURCES.abspath} -test.bench=. -test.run="Do not run tests" $GOTESTARGS')
         env.AlwaysBuild(a)
         env.AlwaysBuild(env.Alias('bench', a))
 
