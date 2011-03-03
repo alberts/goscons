@@ -59,7 +59,8 @@ def gopackage(env, srcdir, basedir=None, *args, **kw):
                                     source=cgo_shobj,
                                     LINKFLAGS='${CGO_OSARCH_LINKFLAGS} ${CGO_LINKFLAGS} -pthread -lm',
                                     *args, **kw)
-        cgo_import = env.Command(srcdir.File('_cgo_import.c'), cgo_lib, '$CGO -dynimport $SOURCES > $TARGET')
+        cgo_import_c = srcdir.Dir('_obj').File('_cgo_import.c')
+        cgo_import = env.Command(cgo_import_c, cgo_lib, '$CGO -dynimport $SOURCES > $TARGET')
         cgo_import_obj = env.GoObject(cgo_import, GOCFLAGS='-FVw', *args, **kw)
         cgo_obj = cgo_defun_obj + cgo_import_obj + cgo_shobj
         objfiles += cgo_obj

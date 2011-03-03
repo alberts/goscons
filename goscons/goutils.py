@@ -145,8 +145,6 @@ def is_os_source(source):
     return None
 
 def is_source(source, env):
-    if source.name=='_cgo_gotypes.go': return False
-    if source.name.endswith('.cgo1.go'): return False
     if source.name.endswith('_test.go'): return False
     if source.name=='_testmain.go': return False
     arch = is_arch_source(source)

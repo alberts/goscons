@@ -7,16 +7,17 @@ import platform
 def emit(target, source, env):
     if len(source)==0:
         return target, source
-    srcdir = source[0].dir
+    objdir = source[0].Dir('_obj')
     tlist = [
-        srcdir.File('_cgo_defun.c'),
-        srcdir.File('_cgo_gotypes.go'),
-        srcdir.File('_cgo_.o')
+        objdir.File('_cgo_defun.c'),
+        objdir.File('_cgo_gotypes.go'),
+        objdir.File('_cgo_.o')
         ]
     for s in source:
         base = SCons.Util.splitext(s.name)[0]
-        tlist.append(s.dir.File(base + '.cgo1.go'))
-        tlist.append(s.dir.File(base + '.cgo2.c'))
+        objdir = s.dir.Dir('_obj')
+        tlist.append(objdir.File(base + '.cgo1.go'))
+        tlist.append(objdir.File(base + '.cgo2.c'))
     return tlist, source
 
 CgoAction = SCons.Action.Action('$CGOCOM', '$CGOCOMSTR')
@@ -60,7 +61,7 @@ def generate(env):
     # TODO find a way to set the environment on Windows
     # TODO environment stuff before $CGO prevents SCons from making
     # making cgo output depend on the cgo binary
-    env['CGOCOM'] = CDCOM + '${TARGET.dir} && CGOPKGPATH=$CGOPKGPATH GOOS=$GOOS GOARCH=$GOARCH $CGO -- $CGO_CFLAGS ${SOURCES.file}'
+    env['CGOCOM'] = CDCOM + '${TARGET.dir}/.. && CGOPKGPATH=$CGOPKGPATH GOOS=$GOOS GOARCH=$GOARCH $CGO -- $CGO_CFLAGS ${SOURCES.file}'
     env['CGOPKGPATH'] = ''
 
     env['CGO_CFLAGS'] = ''
