@@ -17,7 +17,8 @@ def generate(env):
     env['_go_ifarch'] = _go_ifarch
     env['BUILDERS']['GoObject'] = GoObjectBuilder
     env['GOCFLAGS'] = SCons.Util.CLVar('')
-    env['GOCCCOM'] = '$GOCC -o $TARGET $GOCFLAGS $SOURCES'
+    env['GOCCCOM'] = '$GOCC -o $TARGET $GOCFLAGS $_CPPINCFLAGS $SOURCES'
+    env['INCPREFIX'] = '-I'
 
 def exists(env):
     return 1

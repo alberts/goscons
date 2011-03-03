@@ -50,11 +50,17 @@ def gopackage(env, srcdir, basedir=None, *args, **kw):
         objfiles += env.Goc(srcdir.File(obj), gofiles, FGOPREFIX=fgoprefix, *args, **kw)
 
     if len(cgofiles)>0:
-        cflags = '-FVw -I"$GOROOT/src/pkg/runtime"'
+        cpppath = ['$GOROOT/src/pkg/runtime', srcdir]
         cgo_defun = filter(lambda x: x.name=='_cgo_defun.c', cgo_out)
-        cgo_defun_obj = env.GoObject(cgo_defun, GOCFLAGS=cflags, *args, **kw)
+        cgo_defun_obj = env.GoObject(cgo_defun,
+                                     GOCFLAGS='-FVw',
+                                     CPPPATH=cpppath,
+                                     *args, **kw)
         cgo2 = filter(lambda x: x.name.endswith('.cgo2.c'), cgo_out)
-        cgo_shobj = env.SharedObject(cgo2, CFLAGS='${CGO_OSARCH_CFLAGS} ${CGO_CFLAGS}', *args, **kw)
+        cgo_shobj = env.SharedObject(cgo2,
+                                     CFLAGS='${CGO_OSARCH_CFLAGS} ${CGO_CFLAGS}',
+                                     CPPPATH=srcdir,
+                                     *args, **kw)
         cgo_lib = env.SharedLibrary(target=srcdir.File(env.subst('_cgo1_$SHLIBSUFFIX')),
                                     source=cgo_shobj,
                                     LINKFLAGS='${CGO_OSARCH_LINKFLAGS} ${CGO_LINKFLAGS} -pthread -lm',
