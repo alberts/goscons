@@ -13,8 +13,7 @@ var tests = []testing.InternalTest{%(tests)s}
 var benchmarks = []testing.InternalBenchmark{%(benchmarks)s}
 
 func main() {
-\ttesting.Main(__regexp__.MatchString, tests)
-\ttesting.RunBenchmarks(__regexp__.MatchString, benchmarks)
+\ttesting.Main(__regexp__.MatchString, tests, benchmarks)
 }"""
 
 def GenerateTestMain(target, source, env):
