@@ -1,5 +1,4 @@
-goscons
-=======
+#goscons
 
 goscons is a set of SCons tools for building Go code.
 
@@ -11,8 +10,7 @@ which can be found at:
 https://launchpad.net/sconsgo
 
 
-Installation
-============
+##Installation
 
 To get started, do the following:
 
@@ -40,8 +38,7 @@ env.GoPackages('src/pkg')
 env.GoCommands('src/cmd')
 
 
-gccgo
-=====
+##gccgo
 
 Work was started on support for gccgo, but the compiler is missing
 some features that are needed to support dependency resolution and
@@ -50,14 +47,12 @@ automatic construction of the link commands.
 http://groups.google.com/group/golang-nuts/browse_thread/thread/0ef96b1e6bbb1c60
 
 
-Bugs
-====
+##Bugs
 
 Please report bugs to Albert Strasheim <fullung@gmail.com>.
 
 
-About the tests
-===============
+##About the tests
 
 The tests assume you have the 386 tools available, so if you are on
 amd64, go to $GOROOT/src and run:
